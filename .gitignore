@@ -1,0 +1,41 @@
+# --- need to use "git add ." in command line!!!!!!!!! if anything added ---
+# 1. Ignore everything by default
+*
+# 2. Do not ignore directories (Git needs this to navigate through your folders)
+!*/
+# 3. Allow ALL files directly in the root directory
+!/*
+
+# --- EXCEPTIONS TO ALLOWLIST ---
+.DS_Store
+**/.DS_Store
+
+# 4. --- Favicons & Fonts ---
+!/media/favicons/**
+!/media/fonts/**
+
+# 5. --- Logos & Data ---
+!/media/Logo/Logo_small.png
+!/media/Logo/DS_Pattern_filtered.csv
+
+# 6. --- Animated Figures ---
+!/media/animated_figs/**
+
+# 7. --- SVG folder and PDF file ---
+!/topics/special-relativity/Latex/images/svg/**
+!/topics/special-relativity/Latex/output/Handbook_of_Special_Relativity.pdf
+!/media/assets/**
+
+# 8. --- latex ---
+!topics/special-relativity/Latex/Tex/**
+!topics/special-relativity/Latex/Handbook_of_Special_Relativity.tex
+!topics/special-relativity/Latex/Main_matter.tex
+!topics/special-relativity/Latex/Preamble.sty
+!topics/special-relativity/Latex/refs.bib
+
+# 9. --- MISC ---
+!media/CC_License.png
+!topics/SCRIPTS/ASM_Page.py
+!topics/SCRIPTS/Prerender.py
+!topics/SCRIPTS/Structure_Page.html
+!topics/special-relativity/Make_Page.py

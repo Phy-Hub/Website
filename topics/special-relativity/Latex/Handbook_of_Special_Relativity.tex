@@ -1,0 +1,51 @@
+\documentclass[oneside]{book}
+\usepackage{Preamble}
+\input{Tex/Terms/Term_commands.tex}
+\begin{document}
+
+%\input{chapter1}
+
+\def\comp{3}
+
+% Compile Main only
+\ifnum\comp=0
+    \pagecolor{Beige}
+    \input{Tex/toc}
+    \input{Main_Matter}
+    \printbibliography
+\fi
+
+% Compile Appendix only
+\ifnum\comp=1
+    \input{Tex/toc}
+    \input{Tex/Appendix}
+    %\printbibliography
+\fi
+
+% Compile Appendix long only
+\ifnum\comp=2
+    \input{Tex/toc}
+    \input{Tex/Appendix_long}
+    %\printbibliography
+\fi
+
+% Compile All
+\ifnum\comp=3
+    \input{Tex/Cover_front}
+    %\input{Tex/Epigraph}
+    \input{Tex/License.tex}
+    \input{Tex/toc}
+    \input{Tex/Front_Matter}
+    \input{Main_Matter}
+    \backmatter
+    \input{Tex/Outro}
+    \input{Tex/Resources}
+    %\chapter{Dictionary}
+    \input{Tex/Terms/Definitions.tex}
+    \input{Tex/Terms/Term_dict.tex}
+    %\input{Tex/Appendix}
+    \printbibliography
+    \input{Tex/Cover_back}
+\fi
+
+\end{document}

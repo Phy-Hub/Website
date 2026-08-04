@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Handbook of Special Relativity</title>
+<meta name="keywords" content="Special Relativity, Physics Handbook, relativity visualized, Time Dilation, Length Contraction, Inertial Reference Frames, Speed of Light, Doppler Effect, Relativistic Beaming, Relativistic Aberration, Apparent Velocity, Retarded Coordinates, Retarded Position, Retarded Field of Light, Physics Visualizations, Phy-Hub">
+<meta name="description" content="An intuitive and visual handbook on Special Relativity. Learn the concepts through non-mathematical overviews as well as step-by-step derivations.">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="Handbook of Special Relativity">
+<meta property="og:description" content="An intuitive and visual handbook on Special Relativity. Learn the concepts through non-mathematical overviews as well as step-by-step derivations.">
+<meta property="og:image" content="https://www.phy-hub.org/media/assets/og_image_SR.jpg">
+<meta name="author" content="Phy-Hub">
+
+<link rel="icon" type="image/png" href="/media/favicons/favicon-96x96.png" sizes="96x96" >
+<link rel="icon" type="image/svg+xml" href="/media/favicons/favicon.svg" >
+<link rel="shortcut icon" href="/media/favicons/favicon.ico" >
+<link rel="apple-touch-icon" sizes="180x180" href="/media/favicons/apple-touch-icon.png" >
+<meta name="apple-mobile-web-app-title" content="Phy-Hub" >
+<link rel="manifest" href="/media/favicons/site.webmanifest" >
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="preload" href="/media/fonts/texgyreschola-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/media/fonts/texgyreschola-bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+<script defer async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script> MathJax = { loader:  {load:  ['[tex]/tagformat']}, section:  0, tex:  {tags:  'ams', packages:  {'[+]':  ['tagformat', 'sections']}, tagformat:  { number:  (n) => MathJax.config.section + '.' + n }}, startup: {ready() {const Configuration = MathJax._.input.tex.Configuration.Configuration; const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap; new CommandMap('sections', { nextSection:  'NextSection' }, {NextSection(parser, name) {MathJax.config.section++; parser.tags.counter = parser.tags.allCounter = 0;}}); Configuration.create( 'sections', {handler:  {macro:  ['sections']}}); MathJax.startup.defaultReady();},pageReady: () => {return MathJax.startup.defaultPageReady().then(() => {if (window.location.hash) {setTimeout(() => {const id = window.location.hash.substring(1); const target = document.getElementById(id) || document.getElementsByName(id)[0];if (target) {target.scrollIntoView(); } }, 0); } }); }}};</script>
+<script defer src="https://cdn.jsdelivr.net/gh/pcooksey/bibtex-js@1.0.0/src/bibtex_js.min.js"></script>
+
+<!--- CSS -->
+<style>
+  :root {--navbar-height: 60px;}
+
+  html, body {overscroll-behavior: none;}
+
+  .note {text-align: center; font-style: italic; font-size: 0.9rem; margin: 1em 40px; color: #555;}
+  .derivation {color: gray; border: solid gray; border-width: 0 3px; padding: 10px; margin: 20px 0;}
+  .derivation::before {content: "derivation:"; display: block; font-weight: bold; text-decoration: underline; margin-bottom: 10px;}
+
+  .bibliography-list {font: 0.8em "Times New Roman", Times, serif; line-height: 1.2; padding-left: 2.5em;}
+  .bibliography-list li {margin-bottom: 0.5em; padding-left: 0.5em;}
+  .bibliography-list li::marker {content: "[" counter(list-item) "]"; font-weight: bold;}
+  .bibliography-list a { color: inherit; text-decoration: none; }
+  .bib-url { font-family: "Courier New", monospace; word-break: break-all; font-size: 0.9em;}
+  .bib-url:hover { text-decoration: underline; }
+  .citation-link {color: inherit;}
+  dt:hover {background-color: hsl(31, 100%, 82%);}
+  dd {margin-left: 0;}
+  #dictionary > dd {padding: 10px;}
+  span:hover {background-color: hsl(31, 100%, 82%); cursor: default;}
+  h1 span:hover, #tocsidebar span:hover {background-color: transparent; cursor: default;}
+  /* p span:hover {background-color: transparent; cursor: default;} */
+  #hover-link:hover {background-color: hsl(31, 100%, 82%);}
+  #dictionary div {display: none;}
+  #math-glossary dt {display: inline; cursor: pointer; font-weight: bold;}
+  #math-glossary dd {display: none; margin: 0; padding-left: 5px;}
+
+  .strongyellow{background-color: #f6da66;}
+  .yellow{background-color: #fff8bb;}
+  .brown{background-color: #b7a484;}
+  .stronger-colour{background-color: #fccb93;}
+
+  .navbar {display: grid; grid-template-columns: auto 700px auto; position: sticky; top: 0; z-index: 1000; height: var(--navbar-height); width: 100%; background-color: grey; align-items: center; border-radius: 0 0 3px 3px;}
+  #site-navbar {position: sticky; top: 0; z-index: 1000; width: 100%;}
+  .arrow-nav {display: grid; grid-template-columns: 50% 50%; width: 100%; padding-top: 50px;}
+
+  h2 {font-size: 1.7em;}
+  h3 {font-size: 1.5em;}
+  h4 {font-size: 1.2em;}
+  h5 {font-size: 1em;}
+  #toc_container a:hover {text-decoration: underline;}
+  #toc_container a {font-size: 4cqw; color: #787878; padding: 0 10px 0 0; font-family: Arial, sans-serif; line-height: 1.1; text-decoration: none; display: inline-block; transition: color 0.2s;}
+  #toc_container a.toc-active, #toc_container a.toc-section-active {color: black; font-weight: bold;}
+  #toc_container li {line-height: 6cqw;}
+  section a {color: black; text-decoration: none; content-visibility: auto;}
+  section a:hover {text-decoration: underline; background-color: hsl(31, 100%, 82%); cursor: pointer;}
+
+  /* :target:before {content: ""; display: block; height: 65px; margin-top: -65px; visibility: hidden;} */
+  /* h1, h2, h3, h4, h5, section, .chapter, [id] {scroll-margin-top: var(--navbar-height);} */
+  [id] { scroll-margin-top: var(--navbar-height); }
+  .chapter_header, .part_header {scroll-margin-top: var(--navbar-height);}
+
+  main {display: grid; grid-template-columns: 1fr 700px 1fr;}
+  main > * {padding: 20px;}
+  body {counter-reset: figure-counter chapter-counter;}
+  section { counter-increment: chapter-counter; counter-reset: figure-counter; content-visibility: auto;}
+
+  #tocsidebar, .sidebar { position: sticky; top: var(--navbar-height); height: calc(100vh - var(--navbar-height)); box-sizing: border-box; display: flex; flex-direction: column; padding: 0; overflow: hidden; background-color: hsla(30, 40%, 30%, 0.08);}
+  #tocsidebar {container-type: inline-size; position: sticky; top: var(--navbar-height); height: calc(100vh - var(--navbar-height)); box-sizing: border-box; display: flex; flex-direction: column; padding: 0; overflow: hidden;}
+  #tocsidebar > div:first-child {flex: 1; overflow-y: auto; padding-left: 10px; padding-right: 5px; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #cbb08a #ffe4c8;}
+  #tocsidebar > div:first-child::-webkit-scrollbar {width: 6px;}
+  #tocsidebar > div:first-child::-webkit-scrollbar-track {background: #ffe4c8;}
+  #tocsidebar > div:first-child::-webkit-scrollbar-thumb {background-color: #cbb08a; border-radius: 3px;}
+  #tocsidebar > div:last-child {flex: 0 0 auto; padding: 8px 10px; background-color: #ffe4c8; z-index: 10;}
+  #tocsidebar > div:last-child a {display: flex; align-items: center;}
+  .sidebar { align-self: start; text-align: center; }
+  .toc-link { text-decoration:none; color:inherit; display:block; padding:2px 0; cursor:pointer; }
+  .toc-link:hover { color:#000; }
+  .toc-sublist { display:none; list-style:none; padding-left:10px; }
+
+  .dropdown-menu {display: none; position: absolute; right: 0; top: 100%; background-color: grey; min-width: 160px; box-shadow: 0px 8px 16px 0px hsla(0, 0%, 0%, 0.2); z-index: 1;}
+  .dropdown-menu a {color: black; padding: 12px 16px; text-decoration: none; display: block;}
+  .dropdown-menu a:hover {background-color: hsl(0, 0%, 35%)}
+  .menu:hover .dropdown-menu {display: block;}
+  .menu {position: relative; height: 100%; align-items: center;}
+
+  mjx-table {margin: 0 !important;}
+  .math {font-size: 80%;}
+  .math:hover {background-color: hsl(31, 100%, 82%);  box-shadow: 0 0 0 10px hsl(31, 100%, 82%);}
+
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-regular.woff2') format('woff2'), url('/media/fonts/texgyreschola-regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-bold.woff2') format('woff2'), url('/media/fonts/texgyreschola-bold.woff') format('woff'); font-weight: bold; font-style: normal; }
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-italic.woff2') format('woff2'), url('/media/fonts/texgyreschola-italic.woff') format('woff'); font-weight: normal; font-style: italic; }
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-bolditalic.woff2') format('woff2'), url('/media/fonts/texgyreschola-bolditalic.woff') format('woff'); font-weight: bold; font-style: italic; }
+
+  body {font-family: 'TG Schola', 'Century Schoolbook', 'New Century Schoolbook', Georgia, serif;}
+
+  figure {counter-increment: figure-counter; margin-inline: 0;}
+  .singlefigure {width: 80%; margin-inline: auto;}
+  .singlefigure img {display: block; margin-inline: auto; width: 100%; height: auto; max-height: 300px;}
+  .subfigures {width: 95%; margin-inline: auto;}
+  .subfigures div {display: flex; justify-content: space-between; gap: 15px; align-items: flex-end; width: 100%;}
+  .subfigures > div > figure {flex: 1; margin: 0; padding: 0; min-width: 0;}
+  .subfigures img {width: 100%; height: auto; display: block; max-height: 200px; margin-inline: auto;}
+  figcaption {line-height: 1.2; font-size: 0.85em; margin-top: 10px;}
+  .subfigures > figcaption {width: 95%; margin-inline: auto;}
+  .subfigure figcaption {text-align: center;}
+
+  dialog#universalModal {width: 75vw; height: 75vh; border: none; border-radius: 12px; padding: 0; background: transparent; box-shadow: 0 10px 30px hsla(0, 0%, 0%, 0.5); overflow: hidden;}
+  dialog#universalModal::backdrop {background: hsla(0, 0%, 0%, 0.4); backdrop-filter: blur(8px);}
+  dialog#universalModal iframe {width: 100%; height: 100%; border: none; display: block; background: #2a2a2a;}
+  .close-btn {position: absolute; top: 15px; right: 15px; width: 35px; height: 35px; background: #ff2222; color: white; border: none; border-radius: 50%; font-weight: bold; cursor: pointer; z-index: 10;}
+  .close-btn:hover {background: #cc0000;}
+  .fig-button {border-radius: 4px; padding: 0 2px; margin: 0; background-color: #fccb93;}
+  .fig-button:hover {text-decoration: underline; background-color: hsl(31, 100%, 82%); cursor: pointer;}
+
+  #equation_hover:not(:empty), #fig_hover:not(:empty) {box-sizing: border-box; border: 3px solid black !important;}
+
+  .chapter { display: none; }    /* Hide all chapters by default */
+  .chapter:target { display: block; } /* Display the chapter when its ID matches the URL hash */
+  .chapter:last-child { display: block; }   /* Helper to ensure the first chapter is visible if no ID is in URL */
+  .chapter:target ~ .chapter:last-child {display: none; }
+
+  @keyframes fadeIn {to { opacity: 1; }}
+  :is(.initial-load, #tocsidebar, .sidebar) > * {opacity: 0;}
+  body.start-fade :is(.initial-load, #tocsidebar, .sidebar) > * {animation: fadeIn 0.7s ease-out forwards;}
+
+  .mobile-message {display: none; position: fixed; bottom: 0; left: 0; width: 100%; box-sizing: border-box; padding: 15px 40px 15px 15px; background-color: #fccb93; color: black; text-align: center; font-size: 1.1rem; font-family: 'TG Schola', 'Century Schoolbook', serif; z-index: 9999; box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.1);}
+  .close-mobile-msg {position: absolute; top: 5px; right: 10px; background: transparent; border: none; font-size: 1.8rem; font-weight: bold; color: black; cursor: pointer; padding: 0; line-height: 1;}
+  .close-mobile-msg:hover {color: #fd0000;}
+  #mobile-toc-btn, #toc-backdrop {display: none;}
+  #close-toc-btn {display: none;}
+
+  article {font-size: 20px; border: 1px solid hsla(30, 40%, 30%, 0.15);}
+
+  @media (max-width: 700px) {
+    #toc_container a, #toc_container li {line-height: 1.6; font-size: 3.4cqw;}
+    .mobile-message {display: block;}
+    body { padding-bottom: 60px; }
+    dialog#universalModal {width: 95vw;}
+    article {font-size: 16px; min-width: 0px; width: 100%; box-sizing: border-box; margin: 0; padding: 10px; border-left: 0px; border-right: 0px;}
+  }
+
+  @media (max-width: 900px) {
+    #toc_container a, #toc_container li {line-height: 1.6; font-size: 3.4cqw;}
+    #tocsidebar:not(.mobile-active) {display: none !important;}
+    #toc-backdrop.mobile-active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: hsla(0, 0%, 0%, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1004;}
+    #tocsidebar.mobile-active {display: flex !important; position: fixed; top: 50%; left: 0; font-size: small; transform: translateY(-50%); width: 95vw; max-width: 95vw; max-height: 85vh; background-color: #ffe4c8; z-index: 1005; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-radius: 0 12px 12px 0; border: 2px solid #555; border-left: none;}
+    #tocsidebar.mobile-active .toc-link {white-space: nowrap;}
+    #tocsidebar.mobile-active > div:first-child {overflow-x: auto;}
+    #mobile-toc-btn {display: flex; align-items: center; gap: 8px; position: fixed; bottom: 20px; left: 20px; z-index: 1001; background-color: hsl(31, 100%, 82%); border: 2px solid #555; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: filter 0.2s;}
+    #mobile-toc-btn:hover {filter: brightness(0.95);}
+    #tocsidebar.mobile-active #close-toc-btn { display: flex; align-items: center; justify-content: center; position: absolute; bottom: 20px; right: 20px; width: 40px; height: 40px; background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; border-radius: 50%; font-size: 1.1rem; font-family: Arial, sans-serif; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); z-index: 1010; transition: background-color 0.2s, color 0.2s;}
+    #close-toc-btn:hover {background-color: #e8eaed; color: #202124;}
+
+    .sidebar {display: none !important;}
+    .navbar {grid-template-columns: 70px auto 70px;}
+    main {grid-template-columns: 100%;}
+  }
+
+</style>
+</head>
+
+<!--- body -->
+<body style="margin: 0; background-color:#ffe4c8; ">
+<header id="site-navbar">
+  <!--Navbar-->
+  <div class="navbar">
+    <div style="justify-self: start; width: 70px; height: var(--navbar-height);"><a href="/"> <img src="/media/Logo/Logo_small.png" fetchpriority="high" width="105" height="100" alt="Logo" style="height: 50px; width: auto; padding-top: 6px; padding-left: 10px" > </a></div>
+    <div id="banner" style="width: 100%; height: calc(var(--navbar-height) - 3px - 3px); padding-top: 3px; padding-bottom:3px;"> </div>
+    <div class="menu" style="justify-self: end; cursor: pointer; width: 70px; display: flex;">
+
+      <svg width="33" height="37" viewBox="0 0 25 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="margin: auto;">
+        <line x1="2" y1="3" x2="23" y2="3"/>
+        <line x1="2" y1="12" x2="23" y2="12"/>
+        <line x1="2" y1="21" x2="23" y2="21"/>
+      </svg>
+
+      <nav class="dropdown-menu">
+        <a href="/">Home</a>
+        <!-- <a href="/topics">Topics</a> -->
+        <a href="/about">About</a>
+      </nav>
+
+    </div>
+  </div>
+</header>
+
+<!--- Main -->
+<main>
+  <div id="equation_hover" style="position: fixed; top: 0px; padding: 0px; padding-right: 20px; background-color:hsl(31, 100%, 82%); width: 680px; max-width: 95vw; box-sizing: border-box; left: 50%; transform: translateX(-50%); z-index: 9999; border-radius: 10px;"></div>
+  <div id="fig_hover" style="display: none; position: fixed; box-sizing: border-box; padding: 10px; background-color:hsl(31, 100%, 82%); width: 680px; max-width: 95vw; left: 50%; transform: translateX(-50%); z-index: 9999; border-radius: 10px;"></div>
+  <!--- Page Navbar-->
+  <nav id="tocsidebar">
+    <div>
+    <p style="font-size: 1.5em; font-weight: normal; margin: 0pt; padding-bottom: 0.5em;  text-align: center;"><span style="font-family: 'Computer Modern', serif; font-style: italic;">Handbook of</span>
+      <span style="font-family: 'Computer Modern', serif;">
+        [Insert Topic Name]
+      </span>
+    </p>
+    <p style="font-weight: bold; font-size: 1.2em; margin: 0pt;">Contents</p>
+    [Insert TOC] <!-- needs to be in seperate line for ASM.py --> <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p>
+    [Insert PDF Link]
+    </div>
+    <div> <div style="padding-bottom: 5px;"> <a href="/about" style="padding-left: 10px;"> About Phy-Hub  </a> </div> </div>
+    <button id="close-toc-btn" aria-label="Close Table of Contents" onclick="document.getElementById('tocsidebar').classList.remove('mobile-active'); document.getElementById('toc-backdrop').classList.remove('mobile-active');">✖</button>
+  </nav>
+
+  <!--- Main Content-->
+  <article class="initial-load" style="min-height: 300vh; line-height: 1.5;">
+    <header style="display: flex; justify-content: center; text-align: center; font-family: 'Computer Modern Serif'; padding-top: 10px;">
+      <div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
+          <svg style="width: 70%; height: auto; display: block;" viewBox="0 0 1918 568" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" overflow="hidden"><defs><clipPath id="clip0"><rect x="1255" y="133" width="1918" height="568"/></clipPath></defs><g clip-path="url(#clip0)" transform="translate(-1255 -133)"><path d="M1310.6 701 3117.4 701 3117.4 597.727 3173 597.727 3173 529.206 2214 133 1255 529.206 1255 597.727 1310.6 597.727 1310.6 701Z" fill-rule="evenodd"/></g></svg>
+          <h1 aria-label="Handbook of Special Relativity" style="margin: 0; padding: 0; width: 100%; display: flex; justify-content: center; font-weight: normal;">
+              <svg style="width: 78%; height: auto; display: block; margin: 1% 0;" viewBox="0 0 1000 375" xmlns="http://www.w3.org/2000/svg">
+                  <style>.temple-text { font-family: 'Computer Modern', serif; fill: black; text-anchor: middle; } </style>
+                  <text x="50%" y="35%" class="temple-text" font-style="italic" font-size="100">Handbook of</text>
+                  <text x="50%" y="75%" class="temple-text" font-size="110">
+                      Special Relativity
+                  </text>
+              </svg>
+          </h1>
+          <svg style="width: 72%; height: auto; display: block; margin-top: -1%;" viewBox="0 0 2326 150" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" overflow="hidden"> <defs><filter id="fx0" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"><feComponentTransfer color-interpolation-filters="sRGB"><feFuncR type="discrete" tableValues="0 0"/><feFuncG type="discrete" tableValues="0 0"/><feFuncB type="discrete" tableValues="0 0"/><feFuncA type="linear" slope="0.439216" intercept="0"/></feComponentTransfer><feGaussianBlur stdDeviation="7.63889 7.63889"/></filter><clipPath id="clip1"><rect x="1051" y="1638" width="2326" height="200"/></clipPath></defs> <g clip-path="url(#clip1)" transform="translate(-1051 -1638)"><g filter="url(#fx0)" transform="matrix(2 0 0 2 1050 1638)"><g><path d="M23.7399 23.6633 1140.26 23.6633 1140.26 76.7084 23.7399 76.7084Z" fill-rule="evenodd"/></g></g><path d="M1130 1638 3298 1638 3298 1741 1130 1741Z" fill-rule="evenodd"/></g> </svg>
+          <svg style="width: 80%; height: auto; display: block;" viewBox="0 0 2326 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" overflow="hidden"><defs><filter id="fx1" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse"><feComponentTransfer color-interpolation-filters="sRGB"><feFuncR type="discrete" tableValues="0 0"/><feFuncG type="discrete" tableValues="0 0"/><feFuncB type="discrete" tableValues="0 0"/><feFuncA type="linear" slope="0.439216" intercept="0"/></feComponentTransfer><feGaussianBlur stdDeviation="7.63889 7.63889"/></filter><clipPath id="clip2"><rect x="1051" y="1638" width="2326" height="200"/></clipPath></defs><g clip-path="url(#clip2)" transform="translate(-1051 -1638)"><g filter="url(#fx1)" transform="matrix(2 0 0 2 1050 1638)"><g><path d="M23.7399 23.6633 1140.26 23.6633 1140.26 76.7084 23.7399 76.7084Z" fill-rule="evenodd"/></g></g><path d="M1130 1638 3298 1638 3298 1741 1130 1741Z" fill-rule="evenodd"/></g></svg>
+      </div>
+    </header>
+
+    [Insert Content] <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc. Sed euismod, nunc id lacinia tincidunt, enim nunc aliquam nunc, id tincidunt nunc nunc id nunc.</p>
+
+    <div id="bibliography">
+      [Insert Bib]
+    </div>
+
+    <hr style="margin-top: 10px; border: 0; border-top: 1px solid #a2a2a2;">
+    <footer style="text-align: center; font-size: 0.6em; color: #888; font-family: Arial, sans-serif;">
+      <span style="vertical-align: middle;">
+          &copy; 2026 Phy-Hub. The educational content of this Handbook of Special Relativity is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" style="color: #888; text-decoration: underline;">CC BY-NC-ND 4.0 License</a>. However, the site design, themes, branding, and logos are All Rights Reserved.
+      </span>
+    </footer>
+  </article>
+
+  <!--- Sidebar -->
+  <aside class="sidebar">
+    <div style="flex: 1; overflow-y: auto; padding: 10px;">
+        <div id="vars">
+            <div id="definition-display" class="definition-box" style="color: #555; text-align: left;">
+                <div style="text-align: center;"> &ast;Hover over equations for term info&ast; </div>
+            </div>
+            [Insert Math Terms]
+        </div>
+    </div>
+
+    <dl id="dictionary" style="position: fixed; bottom: 0; left: calc(50% + 350px + 10px); background-color: hsl(31, 65%, 85%); margin-right: 10px; margin-bottom: 10px; z-index: 1000; text-align: left;">
+        [Insert Definitions]
+    </dl>
+
+    <div id="suggestion-wrapper" style="text-align: center; flex: 0 0 auto; width: 100%; box-sizing: border-box; padding: 10px; padding-left: 20px;">
+      <span id="suggestion-toggle" style="cursor: pointer; font-size: 0.9rem; color: #555;">
+          <span id="suggestion-arrow" style="cursor: pointer;">▶</span> <span id="suggestion-text" style="cursor: pointer; text-decoration: underline;">Send Suggestions</span>
+      </span>
+      <form id="suggestion-form" action="https://formspree.io/f/mvzwavap" method="POST" style="display: none; margin-top: 10px; text-align: left;">
+          <input type="hidden" name="_subject" value="suggestion box">
+
+          <input type="email" name="email" autocomplete="email" placeholder="Your email (optional)" style="width: 100%; box-sizing: border-box; border-radius: 4px; border: 1px solid #999; padding: 6px; margin-bottom: 8px; font-family: inherit; font-size: 0.8rem;">
+
+          <textarea name="message" required style="width: 100%; height: 80px; box-sizing: border-box; border-radius: 4px; border: 1px solid #999; padding: 6px; font-family: inherit; font-size: 0.8rem;" placeholder="Spot a mistake or have a suggestion? Let me know..."></textarea>
+
+          <button id="suggestion-submit-btn" type="submit" style="margin-top: 5px; width: 100%; background-color: #555; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">
+              Send
+          </button>
+      </form>
+    </div>
+</aside>
+
+<div id="toc-backdrop"></div>
+
+<button id="mobile-toc-btn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="4" cy="6" r="1.5" fill="currentColor"></circle>
+    <circle cx="4" cy="12" r="1.5" fill="currentColor"></circle>
+    <circle cx="4" cy="18" r="1.5" fill="currentColor"></circle>
+    <line x1="9" y1="6" x2="21" y2="6"></line>
+    <line x1="9" y1="12" x2="21" y2="12"></line>
+    <line x1="9" y1="18" x2="21" y2="18"></line>
+  </svg>
+  Contents
+</button>
+
+<!-- <div class="mobile-message" id="mobileMessage">
+    This site has not been designed to be used on a phone.
+    <button class="close-mobile-msg" id="closeMobileMsg"  aria-label="Close message">&times;</button>
+</div> -->
+</main>
+
+<!--- scripts -->
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tocBtn = document.getElementById('mobile-toc-btn');
+    const tocSidebar = document.getElementById('tocsidebar');
+    const tocBackdrop = document.getElementById('toc-backdrop');
+
+    if (tocBtn && tocSidebar) {
+      // Toggle both the TOC and the blurred backdrop
+      tocBtn.addEventListener('click', () => {
+        tocSidebar.classList.toggle('mobile-active');
+        if (tocBackdrop) {
+          tocBackdrop.classList.toggle('mobile-active');
+        }
+      });
+
+      // Optional: Close the TOC if the user taps outside of it (on the blurred background)
+      if (tocBackdrop) {
+        tocBackdrop.addEventListener('click', () => {
+          tocSidebar.classList.remove('mobile-active');
+          tocBackdrop.classList.remove('mobile-active');
+        });
+      }
+    }
+  });
+
+// document.getElementById('closeMobileMsg').addEventListener('click', function() {
+//       // 1. Hide the message box
+//       document.getElementById('mobileMessage').style.display = 'none';
+
+//       // 2. Remove the extra padding at the bottom of the page so it returns to normal
+//       document.body.style.paddingBottom = '0';
+//   });
+
+window.addEventListener('DOMContentLoaded', function() {
+  fetch('/media/Logo/DS_Pattern_filtered.csv')
+    .then(response => response.text())
+    .then(data => {
+      // 1. Setup the Canvas
+      var banner = document.getElementById('banner');
+      banner.innerHTML = ''; // Clear existing content
+
+      var canvas = document.createElement('canvas');
+      canvas.style.width = "100%";
+      canvas.style.height = "54px";
+      banner.appendChild(canvas);
+
+      // Handle high-DPI (Retina) displays so the dots aren't blurry
+      var dpr = window.devicePixelRatio || 1;
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+
+      var ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      // 2. Parse the CSV Data
+      var values = data.trim().split(',').filter(Boolean);
+      var myDots = [];
+
+      var totalItems = values.length / 2; // Pairs of x, y
+      var totalTime = 4; // seconds
+      var timePerItemSlow = totalTime / 2000;
+      var timePerItemFast = (totalTime - (timePerItemSlow * 200)) / (totalItems - 100);
+
+      // Your original SVG viewBox was: viewBox="-4.0 0.0 8 0.5"
+      // We need to map those abstract SVG coordinates to actual Canvas pixels
+      var svgMinX = -3.92;
+      var svgWidth = 7.84;
+      var svgMinY = 0.0;
+      var svgHeight = 0.5;
+
+      // Calculate pixel radius based on your original 0.017 stroke-width
+      var dotRadius = (0.017 / svgWidth) * rect.width / 2;
+
+      for (var i = 0; i < totalItems; i++) {
+        var rawX = parseFloat(values[i * 2]);
+        var rawY = parseFloat(values[i * 2 + 1]);
+
+        if (isNaN(rawX) || isNaN(rawY)) continue;
+
+        // Map SVG coordinate to Canvas pixel coordinate
+        var pixelX = ((rawX - svgMinX) / svgWidth) * rect.width;
+        var pixelY = ((rawY - svgMinY) / svgHeight) * rect.height;
+
+        // Calculate exact appearance time in milliseconds
+        var delaySeconds = i < 300
+          ? i * timePerItemSlow
+          : (i - 300) * timePerItemFast + 300 * timePerItemSlow;
+
+        myDots.push({
+          x: pixelX,
+          y: pixelY,
+          appearTime: delaySeconds * 1000 // Convert to ms for requestAnimationFrame
+        });
+      }
+
+      // 3. The Animation Loop
+      var startTime = null;
+      var dotsDrawn = 0;
+
+      // Fill style for the dots
+      ctx.fillStyle = 'black';
+
+      function render(timestamp) {
+        if (!startTime) startTime = timestamp;
+        var elapsed = timestamp - startTime;
+
+        // Draw any dots whose time has come, but haven't been drawn yet
+        while (dotsDrawn < myDots.length && myDots[dotsDrawn].appearTime <= elapsed) {
+          var dot = myDots[dotsDrawn];
+
+          ctx.beginPath();
+          // arc(x, y, radius, startAngle, endAngle)
+          ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
+          ctx.fill();
+
+          dotsDrawn++;
+        }
+
+        // If we haven't drawn all dots, request the next frame
+        if (dotsDrawn < myDots.length) {
+          requestAnimationFrame(render);
+        }
+      }
+
+      // Kick off the animation
+      requestAnimationFrame(render);
+
+    })
+    .catch(error => console.error("Error loading CSV:", error));
+});
+
+
+
+//##################
+function copyContent(sourceId, targetId, triggerElement) {
+  var sourceDiv = document.getElementById(sourceId);
+
+  if (!sourceDiv) return; // Safety check in case the ID doesn't exist
+
+  // NEW: Check if the source is inside a group of subfigures.
+  // If it is, we replace sourceDiv with the parent group to copy everything.
+  var parentGroup = sourceDiv.closest('.subfigures');
+  if (parentGroup) {
+      sourceDiv = parentGroup;
+  }
+
+  var targetDiv = document.getElementById(targetId);
+
+  targetDiv.innerHTML = '';
+  targetDiv.style.display = 'flex';
+  targetDiv.style.flexDirection = 'column';
+  targetDiv.style.justifyContent = 'center';
+  targetDiv.style.alignItems = 'center';
+
+  var windowHeight = window.innerHeight;
+  var articleHeight = windowHeight;
+  var halfArticleHeight = articleHeight / 2;
+  var midPoint = halfArticleHeight;
+
+  targetDiv.style.height = halfArticleHeight + "px";
+  targetDiv.style.overflow = "hidden";
+
+  var clonedContent = sourceDiv.cloneNode(true);
+  clonedContent.removeAttribute("id");
+  clonedContent.style.margin = "0";
+  clonedContent.style.padding = "0";
+  clonedContent.style.height = "100%";
+  clonedContent.style.width = "100%";
+  clonedContent.style.display = "flex";
+  clonedContent.style.flexDirection = "column";
+  clonedContent.style.justifyContent = "center";
+  clonedContent.style.alignItems = "center";
+
+  var images = clonedContent.getElementsByTagName('img');
+  for (var i = 0; i < images.length; i++) {
+    images[i].style.flex = "1 1 auto";
+    images[i].style.minHeight = "0";
+    images[i].style.maxWidth = "100%";
+    images[i].style.objectFit = "contain";
+    images[i].style.margin = "0 auto";
+    images[i].style.display = "block";
+  }
+
+  // NOTE: If you notice the side-by-side layout of your subfigures gets vertically stacked
+  // or looks squeezed in the hover box, you may want to exclude the inner 'div'
+  // from this list to preserve your flex row layout.
+  var captions = clonedContent.querySelectorAll('figcaption, div, p, span');
+  for (var j = 0; j < captions.length; j++) {
+      // Don't apply text-centering and flex rules to the layout container holding the subfigures
+      if (captions[j].style.display === "flex" && captions[j].style.justifyContent === "space-between") {
+          continue;
+      }
+      captions[j].style.flex = "0 1 auto";
+      captions[j].style.textAlign = "center";
+      captions[j].style.marginTop = "10px";
+  }
+
+  targetDiv.appendChild(clonedContent);
+
+  var rect = triggerElement.getBoundingClientRect();
+
+  if ((rect.top + rect.bottom) / 2 < midPoint) {
+      targetDiv.style.top = "";
+      targetDiv.style.bottom = "0px";
+      targetDiv.style.borderTop = "2px solid #ccc";
+      targetDiv.style.borderBottom = "";
+  } else {
+      targetDiv.style.bottom = "";
+      targetDiv.style.top = "0px";
+      targetDiv.style.borderBottom = "2px solid #ccc";
+      targetDiv.style.borderTop = "";
+  }
+}
+
+function deleteContent(targetId) {
+  var targetDiv = document.getElementById(targetId);
+  if (targetDiv) {
+    targetDiv.innerHTML = '';
+    targetDiv.style.display = 'none';
+    targetDiv.style.top = '';
+    targetDiv.style.bottom = '';
+  }
+}
+
+window.addEventListener('hashchange', () => {
+    const hash = window.location.hash;
+
+    if (hash) {
+        // Find the element the link is pointing to
+        const targetElement = document.querySelector(hash);
+
+        if (targetElement) {
+            // Find the parent chapter wrapper
+            const wrapper = targetElement.closest('.chapter');
+
+            if (wrapper) {
+                // Extract the base ID to feed into your existing toggleView function
+                // e.g., 'part_2_ch2_wrap' becomes 'part_2_ch2'
+                const viewId = wrapper.id.replace('_wrap', '');
+
+                // Open the chapter and update the TOC
+                toggleView(viewId);
+
+                // Scroll to the specific element. A slight delay ensures the DOM
+                // has fully rendered the 'display: block' change before scrolling.
+                setTimeout(() => {
+                    // Using smooth scrolling makes the jump less jarring
+                    targetElement.scrollIntoView();
+                }, 50);
+            }
+        }
+    }
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const hash = window.location.hash;
+
+  if (hash) {
+    const targetElement = document.querySelector(hash);
+
+    if (targetElement) {
+      const wrapper = targetElement.closest('.chapter');
+      if (wrapper) {
+        const viewId = wrapper.id.replace('_wrap', '');
+        toggleView(viewId);
+        setTimeout(() => {
+          targetElement.scrollIntoView();
+
+          // Trigger the animation AFTER scrolling to the element
+          document.body.classList.add('start-fade');
+
+        }, 10);
+        return;
+      }
+    }
+  }
+
+  const firstPartLink = document.querySelector('.toc-part-link');
+  if (firstPartLink) {
+      const partId = firstPartLink.getAttribute('onclick').match(/'([^']+)'/)[1];
+      toggleView(partId);
+  }
+
+  // Trigger the animation normally if there was no hash to scroll to
+  document.body.classList.add('start-fade');
+});
+
+function toggleView(id) {
+    // 1. Hide all main content wrappers
+    const allWrappers = document.querySelectorAll('[id$="_wrap"]');
+    allWrappers.forEach(el => el.style.display = 'none');
+
+    // 2. Hide all sublists underneath parts and chapters
+    const allSublists = document.querySelectorAll('.toc-sublist');
+    allSublists.forEach(el => el.style.display = 'none');
+
+    // 3. FIX: Clear BOTH active classes from all links inside the TOC container
+    const allLinks = document.querySelectorAll('#toc_container .toc-link');
+    allLinks.forEach(el => {
+        el.classList.remove('toc-active');
+        el.classList.remove('toc-section-active');
+    });
+
+    // 4. Reveal the requested article wrapper
+    const targetWrap = document.getElementById(id + '_wrap');
+    if (targetWrap) { targetWrap.style.display = 'block'; }
+
+    // 5. FIX: Look inside the TOC container using a wildcard match to avoid syntax mismatches
+    const activeLink = document.querySelector(`#toc_container a[onclick*="toggleView('${id}')"]`);
+
+    if (activeLink) {
+        activeLink.classList.add('toc-active');
+
+        // If it's a chapter link, ensure its parent list is visible and parent part is active
+        const parentList = activeLink.closest('.toc-part-sublist');
+        if (parentList) {
+            parentList.style.display = 'block';
+
+            const parentLi = parentList.parentElement;
+            const partLink = parentLi.querySelector('.toc-part-link');
+            if (partLink) {
+                partLink.classList.add('toc-active');
+            }
+        }
+
+        // If it's a part/chapter heading with child sublists, expand the immediate children
+        const siblingList = activeLink.nextElementSibling;
+        if (siblingList && siblingList.classList.contains('toc-sublist')) {
+            siblingList.style.display = 'block';
+
+            if (activeLink.classList.contains('toc-part-link')) {
+                const firstChapter = siblingList.querySelector('.toc-chapter-link');
+
+                if (firstChapter) {
+                    const onClickStr = firstChapter.getAttribute('onclick');
+                    const match = onClickStr ? onClickStr.match(/'([^']+)'/) : null;
+
+                    if (match && match[1]) {
+                        const chapterId = match[1];
+                        const chapterWrap = document.getElementById(chapterId + '_wrap');
+
+                        if (chapterWrap) {
+                            chapterWrap.style.display = 'block';
+                            firstChapter.classList.add('toc-active');
+
+                            const chapterSubList = firstChapter.nextElementSibling;
+                            if (chapterSubList && chapterSubList.classList.contains('toc-sublist')) {
+                                chapterSubList.style.display = 'block';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function syncToc(tocId) {
+  let targetId = tocId.replace('_toc', '');
+  toggleView(targetId);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const displayBox = document.getElementById('definition-display');
+  const glossary = document.getElementById('math-glossary');
+  const equations = document.querySelectorAll('.math');
+
+  function getDefinitionItem(termKey) {
+    const dt = glossary.querySelector(`dt[data-term="${termKey}"]`);
+    if (dt && dt.nextElementSibling) {
+      return `<li><strong>${dt.innerHTML}</strong>${dt.nextElementSibling.innerHTML}</li>`;
+    }
+    return '';
+  }
+
+  // Helper function to update the sidebar based on an element's data-terms
+  function updateSidebarWithTerms(targetElement) {
+    if (targetElement && targetElement.hasAttribute('data-terms')) {
+      const termKeys = targetElement.getAttribute('data-terms').split(' ');
+      const listItems = termKeys.map(key => getDefinitionItem(key)).join('');
+      if (listItems) {
+        displayBox.innerHTML = `<ul style="list-style: none; margin: 0; padding: 0;">${listItems}</ul>`;
+        displayBox.classList.add('active');
+      }
+    }
+  }
+
+  // Helper function to reset the sidebar
+  function resetSidebar() {
+    displayBox.innerHTML = '<div style="text-align: center;"> &ast;Hover over equations for term info&ast; </div>';
+    displayBox.classList.remove('active');
+  }
+
+  // 1. Existing logic for hovering directly over the equations
+  equations.forEach(eq => {
+    eq.addEventListener('mouseenter', function() {
+      updateSidebarWithTerms(this);
+    });
+    eq.addEventListener('mouseleave', resetSidebar);
+  });
+
+  // 2. New logic for hovering over the equation references in the text
+  const refEqs = document.querySelectorAll('.ref_eq');
+  refEqs.forEach(ref => {
+    ref.addEventListener('mouseenter', function() {
+      // Extract the target equation ID from the onmouseover attribute
+      const onMouseOverStr = this.getAttribute('onmouseover');
+      if (onMouseOverStr) {
+        // Regex to match the first argument of copyContent('ID', ...)
+        const match = onMouseOverStr.match(/copyContent\('([^']+)'/);
+        if (match && match[1]) {
+          const targetEq = document.getElementById(match[1]);
+          updateSidebarWithTerms(targetEq);
+        }
+      }
+    });
+
+    ref.addEventListener('mouseleave', resetSidebar);
+  });
+});
+
+// [Insert Script]
+</script>
+
+<dialog id="universalModal">
+    <button id="closeBtn" class="close-btn" aria-label="Close">✕</button>
+    <iframe id="universalFrame" title="Simulation Viewer"></iframe>
+</dialog>
+
+<script>
+
+const dialog = document.getElementById('universalModal');
+const iframe = document.getElementById('universalFrame');
+const closeBtn = document.getElementById('closeBtn');
+const buttons = document.querySelectorAll('.fig-button');
+
+buttons.forEach(button => {
+    button.addEventListener('click', () => {
+        const fileToLoad = button.getAttribute('data-src');
+        iframe.src = fileToLoad;
+        dialog.showModal();
+    });
+});
+
+closeBtn.addEventListener('click', () => {
+    dialog.close();
+    iframe.src = '';
+});
+
+dialog.addEventListener('click', (e) => {
+    const rect = dialog.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX > rect.right ||
+        e.clientY < rect.top || e.clientY > rect.bottom) {
+        dialog.close();
+        iframe.src = '';
+    }
+});
+
+
+document.querySelectorAll('span[data-target]').forEach(term => {
+  const target = document.getElementById(term.dataset.target);
+
+  if (target) {
+    term.addEventListener('mouseenter', () => target.style.display = 'block');
+    term.addEventListener('mouseleave', () => target.style.display = 'none');
+    // Optional: Add a pointer cursor so users know it's interactive
+    term.style.cursor = 'help';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Select the content WRAPPERS
+    const sections = document.querySelectorAll('div[id$="_content"]');
+
+    // 2. Configure the "Tripwire" Observer
+    const observerOptions = {
+        root: null,
+        // THE MAGIC TRICK:
+        // -30% pushes the top boundary down by 30% of the screen.
+        // -69% pushes the bottom boundary up by 69% of the screen.
+        // This leaves a tiny 1% trigger line positioned in the upper-middle of your screen.
+        rootMargin: '-40% 0px -59% 0px',
+        threshold: 0
+    };
+
+    // 3. Create the observer
+    const scrollObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            // Because our trigger zone is only 1% tall, usually only one entry
+            // will cross it at a time. Whichever section hits the wire wins.
+            if (entry.isIntersecting) {
+                const containerId = entry.target.id;
+
+                // Swap "_content" for "_header" to match your TOC
+                const headerId = containerId.replace('_content', '_header');
+
+                // Update the URL hash silently
+                history.replaceState(null, null, '#' + headerId);
+
+                // Find the specific TOC link for this header
+                const activeTocLink = document.querySelector(`#toc_container a[href="#${headerId}"]`);
+
+                // Apply highlight if it exists
+                if (activeTocLink) {
+                    document.querySelectorAll('#toc_container a').forEach(a => a.classList.remove('toc-section-active'));
+                    activeTocLink.classList.add('toc-section-active');
+                }
+            }
+        });
+    }, observerOptions);
+
+    // 4. Start observing each content wrapper
+    sections.forEach(section => {
+        scrollObserver.observe(section);
+    });
+});
+
+// 1. Toggle form and arrow direction
+document.getElementById('suggestion-toggle').addEventListener('click', function() {
+    var textSpan = document.getElementById('suggestion-text');
+
+    // Stop it from reopening if they already sent a suggestion successfully
+    if (textSpan.innerText === 'Suggestion sent!') return;
+
+    var form = document.getElementById('suggestion-form');
+    var arrow = document.getElementById('suggestion-arrow');
+
+    // Check if the form is hidden
+    if (form.style.display === 'none' || form.style.display === '') {
+        form.style.display = 'block';
+        arrow.innerText = '▼'; // Point arrow down
+    } else {
+        form.style.display = 'none';
+        arrow.innerText = '▶'; // Point arrow right
+    }
+});
+
+// 2. Submit handling with success and error states
+document.getElementById('suggestion-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Stop the page from redirecting
+
+    var form = this;
+    var submitBtn = document.getElementById('suggestion-submit-btn');
+    var originalBtnText = submitBtn.innerText;
+
+    // Give visual feedback that it's sending so they don't spam click
+    submitBtn.innerText = 'Sending...';
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.7';
+
+    // Send the data in the background
+    fetch(form.action, {
+        method: form.method,
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+        if (response.ok) {
+            form.style.display = 'none'; // Hide the form
+
+            // Update the trigger to show a green checkmark and success message
+            var textSpan = document.getElementById('suggestion-text');
+            var arrowSpan = document.getElementById('suggestion-arrow');
+            var toggleContainer = document.getElementById('suggestion-toggle');
+
+            arrowSpan.innerText = '✓';
+            arrowSpan.style.color = 'green';
+            textSpan.innerText = 'Suggestion sent!';
+            textSpan.style.textDecoration = 'none';
+            toggleContainer.style.cursor = 'default';
+        } else {
+            // Force it to jump to the catch block if Formspree throws an error
+            throw new Error('Network response was not ok');
+        }
+    })
+    .catch(error => {
+        // If it fails (e.g., no internet connection), let them try again
+        submitBtn.innerText = 'Error! Try again.';
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+        submitBtn.style.backgroundColor = '#cc0000'; // Turn button red to indicate failure
+
+        // Revert the button back to normal styling after 3 seconds
+        setTimeout(() => {
+            submitBtn.innerText = originalBtnText;
+            submitBtn.style.backgroundColor = '#555';
+        }, 3000);
+    });
+});
+
+document.addEventListener('animationend', (e) => {
+    if (e.animationName === 'fadeIn') {
+        document.body.classList.remove('initial-load');
+        const article = document.querySelector('article');
+        if (article) {article.classList.remove('initial-load');}
+    }
+}, { once: true });
+
+</script>
+
+<script data-goatcounter="https://phyhub.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+</body>
+</html>

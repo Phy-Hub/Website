@@ -1,0 +1,205 @@
+\ProvidesPackage{Preamble}
+
+%█████████████████████████████████████████████████████
+%PAGE LAYOUT
+%█████████████████████████████████████████████████████
+% font
+\usepackage[T1]{fontenc}
+\usepackage{tgschola}% fourier}% utopia}% lmodern}%
+
+% Page Colour
+\usepackage{xcolor}
+\definecolor{Beige}{HTML}{ffe4c8}
+\definecolor{covercolour}{HTML}{800f25}
+
+% Page Headers and Footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\cfoot{\thepage}
+\usepackage[absolute,overlay]{textpos}
+
+% spacing
+\usepackage{setspace}
+\usepackage{microtype}
+\usepackage{tocloft}
+\cftsetpnumwidth{2.5em}
+\cftsetrmarg{3.5em}
+\renewcommand{\baselinestretch}{1.5} % line spacing
+\renewcommand{\headrulewidth}{0.8pt} % header line
+\setlength{\parindent}{0pt}
+
+%
+\usepackage{multicol}
+\usepackage{mdframed}
+\usepackage[pass]{geometry}
+
+% equation spacing
+\usepackage{mathtools}
+\setlength{\abovedisplayskip}{1pt}
+\setlength{\belowdisplayskip}{1pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+%█████████████████████████████████████████████████████
+%New commands
+%█████████████████████████████████████████████████████
+
+% derivations environment
+\newenvironment{derivation}{
+  \vspace{0.2\baselineskip}
+  %\vspace{-0.45\baselineskip}{\color{gray}\rule{\baselineskip}{0.4pt}}
+  \begin{mdframed}[linecolor=gray, backgroundcolor=Beige, topline=false, bottomline=false]
+    \color{gray} \underline{\textbf{derivation:}}
+    }{% \vspace{- 0.5\baselineskip} \hspace{-0.76\baselineskip} \color{gray}\rule{\baselineskip}{0.4pt}  \vspace{-0.27\baselineskip}
+  \end{mdframed}
+  \vspace{\baselineskip}
+}
+
+% boxed environment for points
+\newenvironment{mainpoints}{
+  \begin{tcolorbox}%[breakable]
+    \begin{enumerate}  }{
+    \end{enumerate}
+  \end{tcolorbox}
+}
+
+% variable table
+\usepackage{colortbl}
+\usepackage{xtab}
+\newcommand{\linesep}{
+  \vspace{-0.6\baselineskip}
+  \noindent\textcolor{gray}{\rule{\linewidth}{0.4pt}}
+  \vspace{-1.2\baselineskip}
+}
+
+\newcommand{\variableterm}[3]{
+  \newcommand{#1}{#2}
+  \expandafter\newcommand\csname\expandafter\@gobble\string#1def\endcsname{#3}
+}
+
+%#todo this is used in the end of chapter variable terms page
+%#todo make obsolete by making var defs for end of chapter using new method
+\newcommand{\variable}[2]{
+  \noindent #1 \textbf{:} #2
+
+  \vspace{-0.6\baselineskip}
+  \noindent\textcolor{gray}{\rule{\linewidth}{0.4pt}}
+  \vspace{-0.4\baselineskip}
+}
+
+% definitions
+\usepackage{lipsum}
+\newcommand{\term}[4]{
+    \noindent \hypertarget{#1}{\textbf{#2:}}
+    #4
+    \par
+    \linesep
+}
+
+\newcommand{\sidenote}{\textbf{Side Note:}}
+
+\newenvironment{note}
+  {\list{}{\rightmargin\leftmargin}
+   \item\relax
+   \centering\small\itshape}
+  {\endlist}
+
+% creating Part title page
+\makeatletter
+\renewcommand{\part}[1]{%
+  \newpage
+  \thispagestyle{plain}
+  \refstepcounter{part}%
+  \addcontentsline{toc}{part}{\thepart\hspace{1em}#1}%
+  \vspace*{2cm} % vertical space before part title
+  \begin{center}%
+    {\Huge \bfseries \partname~\thepart\par}%
+    \vspace{1cm}%
+    {\Huge \bfseries #1\par}%
+  \end{center}%
+  \vspace{2cm} % vertical space after part title
+}
+\makeatother
+
+%██████████████████████████████████████████████████████
+% LINKS
+%█████████████████████████████████████████████████████
+%\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+
+%█████████████████████████████████████████████████████
+% MATH
+%█████████████████████████████████████████████████████
+
+%\usepackage{mathtools}
+%\usepackage{amsmath}
+\usepackage{amssymb}
+%\usepackage{bm}
+\usepackage[most]{tcolorbox}
+\newcommand\mhl[1]{\tcbhighmath{#1}}
+\tcbset{highlight math style={ colframe=black, colback=yellow!25!white }}
+
+%█████████████████████████████████████████████████████
+% PLOTS
+%█████████████████████████████████████████████████████
+
+% Figures
+\usepackage{caption}
+\usepackage{subcaption}
+\newcommand{\figmetatitle}[1]{}
+%\newcommand*{\figuretitle}[1]{ \centering \textbf{#1} \par\medskip }
+%\usepackage{wrapfig} % wrap text around fig
+
+% Images
+\usepackage{graphicx}
+%\graphicspath{ {./images} }
+
+% Diagrams
+\usepackage{float}
+\usepackage{asymptote} % \asy enviro
+\usepackage{tikz}
+\usepackage{tikz-3dplot}
+\usetikzlibrary{external}
+
+% 1. Automatically create the nested folder so a clean build never crashes
+\immediate\write18{mkdir -p output/tikz}
+
+% 2. Force the background TikZ compiler to respect VS Code's output directory
+\tikzset{external/system call={pdflatex \tikzexternalcheckshellescape -halt-on-error -interaction=batchmode -output-directory=output -jobname "\image" "\texsource"}}
+
+% 3. Set the prefix to JUST 'tikz/' (because the system call above already puts it inside 'output/')
+\tikzexternalize[prefix=tikz/]
+\tikzifexternalizing{\hypersetup{pdfauthor={Phy-Hub}, pdfsubject={A figure created by Phy-Hub, for The Handbook of Special Relativity}}}{\hypersetup{pdfauthor={Phy-Hub},pdftitle={The Handbook of Special Relativity}}}
+\tikzset{external/optimize command away=\derivation}
+\tikzset{external/optimize command away=\endderivation}
+\usetikzlibrary{positioning}
+\usetikzlibrary{calc}
+\usetikzlibrary{math}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{decorations.pathmorphing, patterns, shapes.geometric}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+\tcbset{shield externalize}
+
+
+
+
+%█████████████████████████████████████████████████████
+% BIBLIOGRAPHY
+%█████████████████████████████████████████████████████
+\usepackage[backend=biber, refsegment=chapter, defernumbers=true]{biblatex}
+\addbibresource{refs.bib}
+
+%█████████████████████████████████████████████████████
+% License
+%█████████████████████████████████████████████████████
+\usepackage{csquotes}
+% \makeatletter
+% \@ifundefined{opt@csquotes.sty}{}{\let\@quotelevel\relax}
+% \makeatother
+\usepackage[type={CC}, modifier={by-nc-nd}, version={4.0}]{doclicense}
+\newcommand{\zeropad}[1]{\ifnum#1<10 0\fi\number#1}
+\newcommand{\version}{v0.9-\the\year\zeropad{\month}\zeropad{\day}}

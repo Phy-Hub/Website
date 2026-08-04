@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Resources for Learning Physics</title>
+<meta name="keywords" content="study physics, learn physics, Physics resources, Phy-Hub">
+<meta name="description" content="Resources for learning physics">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="Resources for learning physics">
+<meta property="og:description" content="A list of resources for learning physics">
+<meta property="og:image" content="https://www.phy-hub.org/media/assets/og_image_resources.jpg">
+<meta name="author" content="Phy-Hub">
+
+<link rel="icon" type="image/png" href="/media/favicons/favicon-96x96.png" sizes="96x96" >
+<link rel="icon" type="image/svg+xml" href="/media/favicons/favicon.svg" >
+<link rel="shortcut icon" href="/media/favicons/favicon.ico" >
+<link rel="apple-touch-icon" sizes="180x180" href="/media/favicons/apple-touch-icon.png" >
+<meta name="apple-mobile-web-app-title" content="Phy-Hub" >
+<link rel="manifest" href="/media/favicons/site.webmanifest" >
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="preload" href="/media/fonts/texgyreschola-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/media/fonts/texgyreschola-bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
+<!--- CSS -->
+<style>
+  :root {--navbar-height: 60px;}
+
+  html, body {overscroll-behavior: none;}
+
+  span:hover {background-color: hsl(31, 100%, 82%); cursor: default;}
+
+  .navbar {display: grid; grid-template-columns: auto 700px auto; position: sticky; top: 0; z-index: 1000; height: var(--navbar-height); width: 100%; background-color: #808080; align-items: center; border-radius: 0 0 3px 3px;}
+  #site-navbar {position: sticky; top: 0; z-index: 1000; width: 100%;}
+  .arrow-nav {display: grid; grid-template-columns: 50% 50%; width: 100%; padding-top: 50px;}
+
+  h2 {font-size: 1.7em;}
+  #toc_container a:hover {text-decoration: underline;}
+  #toc_container a {font-size: 1.1rem; color: #787878; padding: 0 10px 0 0; font-family: Arial, sans-serif; line-height: 1.3; text-decoration: none; display: inline-block; transition: color 0.2s;}
+  #toc_container a.toc-active {color: black; font-weight: bold;}
+  #toc_container li {line-height: 1.1;}
+  section a {color: black; text-decoration: none;}
+  section a:hover {text-decoration: underline; background-color: hsl(31, 100%, 82%); cursor: pointer;}
+
+  section li {line-height: 1.3; padding-bottom: 10px;}
+
+  [id] { scroll-margin-top: var(--navbar-height); }
+
+  main {display: grid; grid-template-columns: 1fr 700px 1fr;}
+  main > * {padding: 20px;}
+
+  #tocsidebar, .sidebar { position: sticky; top: var(--navbar-height); height: calc(100vh - var(--navbar-height)); box-sizing: border-box; display: flex; flex-direction: column; padding: 0; overflow: hidden;}
+  #tocsidebar {position: sticky; top: var(--navbar-height); height: calc(100vh - var(--navbar-height)); box-sizing: border-box; display: flex; flex-direction: column; padding: 0; overflow: hidden;}
+  #tocsidebar > div:first-child {flex: 1; overflow-y: auto; padding-left: 10px; padding-right: 5px; padding-bottom: 10px; scrollbar-width: thin; scrollbar-color: #cbb08a #ffe4c8;}
+  #tocsidebar > div:first-child::-webkit-scrollbar {width: 6px;}
+  #tocsidebar > div:first-child::-webkit-scrollbar-track {background: #ffe4c8;}
+  #tocsidebar > div:first-child::-webkit-scrollbar-thumb {background-color: #cbb08a; border-radius: 3px;}
+  #tocsidebar > div:last-child {flex: 0 0 auto; padding: 8px 10px; background-color: #ffe4c8; z-index: 10;}
+  #tocsidebar > div:last-child a {display: flex; align-items: center;}
+  .sidebar { align-self: start; text-align: center; }
+  .toc-link { text-decoration:none; color:inherit; display:block; padding:2px 0; cursor:pointer; }
+  .toc-link:hover { color:#000; }
+
+  .dropdown-menu {display: none; position: absolute; right: 0; top: 100%; background-color: grey; min-width: 160px; box-shadow: 0px 8px 16px 0px hsla(0, 0%, 0%, 0.2); z-index: 1;}
+  .dropdown-menu a {color: black; padding: 12px 16px; text-decoration: none; display: block;}
+  .dropdown-menu a:hover {background-color: hsl(0, 0%, 35%)}
+  .menu:hover .dropdown-menu {display: block;}
+  .menu {position: relative; height: 100%; align-items: center;}
+
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-regular.woff2') format('woff2'), url('/media/fonts/texgyreschola-regular.woff') format('woff'); font-weight: normal; font-style: normal; }
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-bold.woff2') format('woff2'), url('/media/fonts/texgyreschola-bold.woff') format('woff'); font-weight: bold; font-style: normal; }
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-italic.woff2') format('woff2'), url('/media/fonts/texgyreschola-italic.woff') format('woff'); font-weight: normal; font-style: italic; }
+  @font-face { font-family: 'TG Schola'; src: url('/media/fonts/texgyreschola-bolditalic.woff2') format('woff2'), url('/media/fonts/texgyreschola-bolditalic.woff') format('woff'); font-weight: bold; font-style: italic; }
+
+  body {font-family: 'TG Schola', 'Century Schoolbook', 'New Century Schoolbook', Georgia, serif;}
+
+  .chapter { display: none; }    /* Hide all chapters by default */
+  .chapter:target { display: block; } /* Display the chapter when its ID matches the URL hash */
+  .chapter:last-child { display: block; }   /* Helper to ensure the first chapter is visible if no ID is in URL */
+  .chapter:target ~ .chapter:last-child {display: none; }
+
+  @keyframes fadeIn {to { opacity: 1; }}
+  :is(.initial-load, #tocsidebar, .sidebar) > * {opacity: 0;}
+  body.start-fade :is(.initial-load, #tocsidebar, .sidebar) > * {animation: fadeIn 0.7s ease-out forwards;}
+
+  #mobile-toc-btn, #toc-backdrop {display: none;}
+  #close-toc-btn {display: none;}
+
+  article {font-size: 20px; border-left: 10px solid hsla(0, 0%, 50%, 0.1); border-right: 10px solid hsla(0, 0%, 50%, 0.1);}
+
+  @media (max-width: 700px) {
+    #toc_container a, #toc_container li {line-height: 1.6;}
+    body { padding-bottom: 60px; }
+    article {font-size: 16px; min-width: 0px; width: 100%; box-sizing: border-box; margin: 0; padding: 10px; border-left: 0px; border-right: 0px;}
+  }
+
+  @media (max-width: 900px) {
+    #tocsidebar:not(.mobile-active) {display: none !important;}
+    #toc-backdrop.mobile-active { display: block; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: hsla(0, 0%, 0%, 0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1004;}
+    #tocsidebar.mobile-active {display: flex !important; position: fixed; top: 50%; left: 0; font-size: small; transform: translateY(-50%); width: 95vw; max-width: 95vw; max-height: 85vh; background-color: #ffe4c8; z-index: 1005; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-radius: 0 12px 12px 0; border: 2px solid #555; border-left: none;}
+    #tocsidebar.mobile-active .toc-link {white-space: nowrap;}
+    #tocsidebar.mobile-active > div:first-child {overflow-x: auto;}
+    #mobile-toc-btn {display: flex; align-items: center; gap: 8px; position: fixed; bottom: 20px; left: 20px; z-index: 1001; background-color: hsl(31, 100%, 82%); border: 2px solid #555; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: filter 0.2s;}
+    #mobile-toc-btn:hover {filter: brightness(0.95);}
+    #tocsidebar.mobile-active #close-toc-btn { display: flex; align-items: center; justify-content: center; position: absolute; bottom: 20px; right: 20px; width: 40px; height: 40px; background-color: #f1f3f4; color: #5f6368; border: 1px solid #dadce0; border-radius: 50%; font-size: 1.1rem; font-family: Arial, sans-serif; cursor: pointer; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); z-index: 1010; transition: background-color 0.2s, color 0.2s;}
+    #close-toc-btn:hover {background-color: #e8eaed; color: #202124;}
+
+    .sidebar {display: none !important;}
+    .navbar {grid-template-columns: 70px auto 70px;}
+    main {grid-template-columns: 100%;}
+  }
+
+</style>
+</head>
+
+<!--- body -->
+<body style="margin: 0; background-color:#ffe4c8; ">
+<header id="site-navbar">
+  <!--Navbar-->
+  <div class="navbar">
+    <div style="justify-self: start; width: 70px; height: var(--navbar-height);"><a href="/"> <img src="/media/Logo/Logo_small.png" fetchpriority="high" width="105" height="100" alt="Logo" style="height: 50px; width: auto; padding-top: 6px; padding-left: 10px" > </a></div>
+    <div id="banner" style="width: 100%; height: calc(var(--navbar-height) - 3px - 3px); padding-top: 3px; padding-bottom:3px;"> </div>
+    <div class="menu" style="justify-self: end; cursor: pointer; width: 70px; display: flex;">
+
+      <svg width="33" height="37" viewBox="0 0 25 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" style="margin: auto;">
+        <line x1="2" y1="3" x2="23" y2="3"/>
+        <line x1="2" y1="12" x2="23" y2="12"/>
+        <line x1="2" y1="21" x2="23" y2="21"/>
+      </svg>
+
+      <nav class="dropdown-menu">
+        <a href="/">Home</a>
+        <!-- <a href="/topics">Topics</a> -->
+        <a href="/about">About</a>
+      </nav>
+
+    </div>
+  </div>
+</header>
+
+<!--- Main -->
+<main>
+  <!--- Page Navbar-->
+  <nav id="tocsidebar">
+    <div>
+    <p style="font-size: 1.5em; font-weight: normal; margin: 0pt; padding-bottom: 0.5em;  text-align: center;">
+      <span style="font-family: 'Computer Modern', serif; background-color: transparent;"> Physics Resources </span>
+    </p>
+<div id="toc_container"><ul style="list-style:none; padding:0; padding-left: 5px;">
+  <li> <a href="#intro" id="link_intro" class="toc-link toc-part-link" onclick="toggleView('intro')"><span style="font-size: 0.8rem;">▶ </span><b>Intro</b></a> </li>
+  <li> <a href="#general_physics" id="link_part_1" class="toc-link toc-part-link" onclick="toggleView('part_1')"><span style="font-size: 0.8rem;">▶ </span><b>General Physics</b></a> </li>
+  <li> <a href="#mathematics" id="link_part_2" class="toc-link toc-part-link" onclick="toggleView('part_2')"><span style="font-size: 0.8rem;">▶ </span><b>Mathematics</b></a> </li>
+  <li> <a href="#quantum_mechanics" id="link_part_3" class="toc-link toc-part-link" onclick="toggleView('part_3')"><span style="font-size: 0.8rem;">▶ </span><b>Quantum Mechanics</b></a> </li>
+  <li> <a href="#special_relativity" id="link_part_4" class="toc-link toc-part-link" onclick="toggleView('part_4')"><span style="font-size: 0.8rem;">▶ </span><b>Special Relativity</b></a> </li>
+  <li> <a href="#general_relativity_and_gravity" id="link_part_5" class="toc-link toc-part-link" onclick="toggleView('part_5')"><span style="font-size: 0.8rem;">▶ </span><b>General Relativity and Gravity</b></a> </li>
+  <li> <a href="#coding_and_latex" id="link_part_6" class="toc-link toc-part-link" onclick="toggleView('part_6')"><span style="font-size: 0.8rem;">▶ </span><b>Coding and LaTeX</b></a> </li>
+  <li> <a onmouseover="this.style.textDecoration='none';" style="color: #999;">more to be added...</a></li>
+</ul></div>
+
+    </div>
+    <div> <div style="padding-bottom: 10px;"> <a href="/about" style="padding-left: 10px;"> About Phy-Hub  </a> </div> </div>
+    <button id="close-toc-btn" aria-label="Close Table of Contents" onclick="document.getElementById('tocsidebar').classList.remove('mobile-active'); document.getElementById('toc-backdrop').classList.remove('mobile-active');">✖</button>
+  </nav>
+
+  <!--- Main Content-->
+  <article class="initial-load" style="line-height: 1.5;">
+<section class="chapter" id="intro_wrap">
+<div>
+
+<header id="intro" style="display: flex; justify-content: center; text-align: center; font-family: 'Computer Modern Serif'; padding-top: 10px;">
+<div style="width: 50%; display: flex; flex-direction: column; align-items: center;">
+<svg overflow="hidden" style="width: 70%; height: auto; display: block;" viewBox="0 0 1918 568" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><clippath id="clip0"><rect height="568" width="1918" x="1255" y="133"></rect></clippath></defs><g clip-path="url(#clip0)" transform="translate(-1255 -133)"><path d="M1310.6 701 3117.4 701 3117.4 597.727 3173 597.727 3173 529.206 2214 133 1255 529.206 1255 597.727 1310.6 597.727 1310.6 701Z" fill-rule="evenodd"></path></g></svg>
+<h1 aria-label="List of Physics Resources" style="margin: 0; padding: 0; width: 100%; display: flex; justify-content: center; font-weight: normal;">
+<svg style="width: 78%; height: auto; display: block; margin: 1% 0;" viewBox="0 0 1000 375" xmlns="http://www.w3.org/2000/svg">
+<style>.temple-text { font-family: 'Computer Modern', serif; fill: black; text-anchor: middle; } </style>
+<text class="temple-text" font-size="160" x="50%" y="40%">Physics</text>
+<text class="temple-text" font-size="160" x="50%" y="80%">
+                      Resources
+                  </text>
+</svg>
+</h1>
+<svg overflow="hidden" style="width: 72%; height: auto; display: block; margin-top: -1%;" viewBox="0 0 2326 150" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <defs><filter filterunits="userSpaceOnUse" height="120%" id="fx0" primitiveunits="userSpaceOnUse" width="120%" x="-10%" y="-10%"><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr tablevalues="0 0" type="discrete"></fefuncr><fefuncg tablevalues="0 0" type="discrete"></fefuncg><fefuncb tablevalues="0 0" type="discrete"></fefuncb><fefunca intercept="0" slope="0.439216" type="linear"></fefunca></fecomponenttransfer><fegaussianblur stddeviation="7.63889 7.63889"></fegaussianblur></filter><clippath id="clip1"><rect height="200" width="2326" x="1051" y="1638"></rect></clippath></defs> <g clip-path="url(#clip1)" transform="translate(-1051 -1638)"><g filter="url(#fx0)" transform="matrix(2 0 0 2 1050 1638)"><g><path d="M23.7399 23.6633 1140.26 23.6633 1140.26 76.7084 23.7399 76.7084Z" fill-rule="evenodd"></path></g></g><path d="M1130 1638 3298 1638 3298 1741 1130 1741Z" fill-rule="evenodd"></path></g> </svg>
+<svg overflow="hidden" style="width: 80%; height: auto; display: block;" viewBox="0 0 2326 200" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><filter filterunits="userSpaceOnUse" height="120%" id="fx1" primitiveunits="userSpaceOnUse" width="120%" x="-10%" y="-10%"><fecomponenttransfer color-interpolation-filters="sRGB"><fefuncr tablevalues="0 0" type="discrete"></fefuncr><fefuncg tablevalues="0 0" type="discrete"></fefuncg><fefuncb tablevalues="0 0" type="discrete"></fefuncb><fefunca intercept="0" slope="0.439216" type="linear"></fefunca></fecomponenttransfer><fegaussianblur stddeviation="7.63889 7.63889"></fegaussianblur></filter><clippath id="clip2"><rect height="200" width="2326" x="1051" y="1638"></rect></clippath></defs><g clip-path="url(#clip2)" transform="translate(-1051 -1638)"><g filter="url(#fx1)" transform="matrix(2 0 0 2 1050 1638)"><g><path d="M23.7399 23.6633 1140.26 23.6633 1140.26 76.7084 23.7399 76.7084Z" fill-rule="evenodd"></path></g></g><path d="M1130 1638 3298 1638 3298 1741 1130 1741Z" fill-rule="evenodd"></path></g></svg>
+</div>
+</header>
+
+<!-- # start here  -->
+<p>
+Here is a list of external high quality resources for learning physics sorted by topic, as shown in the table of contents. At the moment this is a very basic/simple list with more to be added with time.
+</p>
+<p>
+In some places where I have yet to look into book, video and site resources, I have used some Wikipedia pages as placeholders.
+These can be a good starting point for getting the overview of the topic's concepts, or pointing you in the direction of what subtopics you can look into for a deeper understanding. Just make sure not to go down a wikipedia rabbit hole.
+</p>
+<p>
+Most of the resources here were picked due to them being very visual, or due to the topic being explained plainly and without being too abstract. If you have some high quality/useful resources you would like to suggest, please leave them by clicking the suggestion button in the bottom right corner, or in the contents menu if you are on your phone.
+</p>
+
+
+
+</div>
+<div class="arrow-nav">
+<a></a>
+<a href="#general_physics" onclick="toggleView('part_1');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>
+</div>
+</section>
+
+<section class="chapter" id="part_1_wrap">
+<h2 id="general_physics" style="display: flex; justify-content: center; text-align: center;">General Physics</h2>
+<div>
+
+<p><b>Tools:</b></p>
+
+<ul>
+  <li><a href="https://www.wolframalpha.com" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>wolframalpha.com</code></a> </li>
+</ul><p>
+
+<b>Overviews:</b>
+
+</p><ul>
+  <li><a href="https://www.feynmanlectures.caltech.edu/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>The Feynman lectures on physics</i></a> </li>
+  <li><a href="https://www.quercusbooks.co.uk/titles/giles-sparrow/physics-in-minutes/9781782066484/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>Physics in Minutes</i> - by Giles Sparrow</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLkahZjV5wKe9q3K-nk82kVD_pNfPZ140i" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Physics</i> - by Veritasium</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLwgQsqtH9H5c6BoeQ2S_NFw2z-HbuQlP7" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Physics - Sabine Hossenfelder</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Einstein%27s_thought_experiments" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Einstein's thought experiments</i></a> </li>
+</ul><p>
+
+<b>History and Biographies:</b>
+
+</p><ul>
+  <li><a href="https://atlantic-books.co.uk/book/the-impossible-man/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>The Impossible Man, Roger Penrose and the Cost of Genius</i> - by Patchen Barss</a> </li>
+  <li><a href="https://youtu.be/YdOXS_9_P4U" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Terence Tao on the cosmic distance ladder</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtu.be/hFMaT9oRbs4" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Terence Tao continuing history's cleverest cosmological measurements</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLUVgg53uSUOkiR1aEvvA72MUBmWMEwfEE" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>The History of Physics</i> - by The History of Physics</a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/History_of_physics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>History of physics</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Outline_of_physics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Outline of physics</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Timeline_of_fundamental_physics_discoveries" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Timeline of fundamental physics discoveries</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/List_of_timelines#Physics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Timelines of Discoveries in Physics</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/List_of_experiments_in_physics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>List of experiments in physics</i></a> </li>
+</ul>
+
+</div>
+<div class="arrow-nav">
+<a href="#intro" onclick="toggleView('intro');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>
+<a href="#mathematics" onclick="toggleView('part_2');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>
+</div>
+</section>
+
+<section class="chapter" id="part_2_wrap">
+<h2 id="mathematics" style="display: flex; justify-content: center; text-align: center;">Mathematics</h2>
+<div>
+<p><b>General Mathematics:</b></p>
+
+<ul>
+  <li><a href="https://global.oup.com/academic/product/oxford-users-guide-to-mathematics-9780199686926?cc=gb&lang=en&" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>Oxford Users Guide to Mathematics</i></a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLZHQObOWTQDMsr9K-rj53DwVRMYO3t5Yr" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Essence of calculus</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Essence of linear algebra</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLZHQObOWTQDNPOjrT6KVlfJuKtYTftqH6" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Differential equations</i> - by 3Blue1Brown</a></li>
+</ul><p>
+
+<b>Advanced Mathematics topics for physics:</b>
+
+</p><ul>
+  <li><a href="https://youtube.com/playlist?list=PLffJUy1BnWj3deu0cqpk5CiePiwORDiCe" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Geometric Algebra</i> - by All Angles</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLJHszsWbB6hrkmmq57lX8BV-o-YIOFsiG" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Tensors for Beginners</i> - by eigenchris</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLJHszsWbB6hpk5h8lSfBkVrpjsqvUGTCx" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Tensors Calculus</i> - by eigenchris</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLJHszsWbB6hoOo_wMb0b6T44KM_ABZtBs" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Spinors for Beginners</i> - by eigenchris</a> </li>
+  <li><a href="https://eater.net/quaternions" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>eater.net/quaternions</code></a> </li>
+</ul>
+
+</div>
+<div class="arrow-nav">
+<a href="#general_physics" onclick="toggleView('part_1');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>
+<a href="#quantum_mechanics" onclick="toggleView('part_3');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>
+</div>
+</section>
+
+<section class="chapter" id="part_3_wrap">
+<h2 id="quantum_mechanics" style="display: flex; justify-content: center; text-align: center;">Quantum Mechanics</h2>
+<div>
+
+<p><b>Overview:</b></p>
+
+<ul>
+  <li><a href="https://www.hachettebookgroup.com/titles/adam-becker-2/what-is-real/9781541698970/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>What Is Real? The Unfinished Quest for the Meaning of Quantum Physics</i> - by Adam Becker</a> </li>
+  <li><a href="https://www.quercusbooks.co.uk/titles/gemma-lavender/quantum-physics-in-minutes/9781786481214/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>Quantum Physics in Minutes</i> - by Gemma Lavender</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PL0E2ABD1D84697428" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Quantum Mechanics</i> - by minutephysics</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLg-OiIIbfPj1t7zYsf6aj7wrGb9fghFDk" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Quantum mechanics course</i> - by Looking Glass Universe</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLg-OiIIbfPj2aXCoQkrVA3CwUGLDgKZBQ" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Some Quantum Mechanics</i> - by Looking Glass Universe</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLg-OiIIbfPj3mDFx5zjVPtgiGwZMM4Erw" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Quantum experiments at home</i> - by Looking Glass Universe</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PL4_IZ0OM6KAnZ30LiL2RC7zd_WcLypSD-" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Quantum Mechanics, Quantum Field Theory</i> - by Pretty Much Physics</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLwgQsqtH9H5djIfFhXE6We207beTgUnyL" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Understanding Quantum Mechanics</i> - by Sabine Hossenfelder</a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Quantum_mechanics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Quantum mechanics</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/History_of_quantum_mechanics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>History of quantum mechanics</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Interpretations_of_quantum_mechanics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Interpretations of quantum mechanics</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Planck_constant" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Planck constant</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Proton_spin_crisis" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Proton spin crisis</i></a> </li>
+</ul><p>
+
+<b>Interactive diagrams:</b>
+
+</p><ul>
+  <li><a href="https://demonstrations.wolfram.com/topic/quantum-mechanics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>demonstrations.wolfram.com/topic/quantum-mechanics</code></a> </li>
+  <li><a href="https://www.st-andrews.ac.uk/physics/quvis/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>st-andrews.ac.uk/physics/quvis</code></a> </li>
+</ul><p>
+
+<b>Properties of Light:</b>
+
+</p><ul>
+  <li><a href="https://youtu.be/QCX62YJCmGk" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>This tests your understanding of light | The barber pole effect</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtu.be/aXRTczANuIs" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>How wiggling charges give rise to light</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtu.be/KTzGBJPuJwM" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>But why would light "slow down"? | Visualizing Feynman's lecture on the refractive index</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtu.be/Cz4Q4QOuoo8" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Answering viewer questions about refraction</i> - by 3Blue1Brown</a> </li>
+  <li><a href="https://youtu.be/MzRCDLre1b4" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Some light quantum mechanics</i> - by 3Blue1Brown and minutephysics</a> </li>
+  <li><a href="https://demonstrations.wolfram.com/topic/optics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>demonstrations.wolfram.com/topic/optics</code></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Photon_polarization" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Photon polarization</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Polarizer" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Polarizer</i></a> </li>
+</ul><p>
+
+<b>Specific topics:</b>
+
+</p><ul>
+  <li><a href="https://youtu.be/5o0IVVyHvb8" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>What is Spin?</i> - by ZAP Physics</a> </li>
+  <li><a href="https://youtu.be/RQv5CVELG3U" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>The Delayed Choice Quantum Eraser, Debunked</i> - by Sabine Hossenfelder</a> </li>
+  <li><a href="https://youtu.be/f72whGQ31Wg" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>The EPR Paradox & Bell's inequality explained simply</i> - by Arvin Ash</a> </li>
+  <li><a href="https://youtu.be/eNJFUo7yHhQ" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Pilot Wave theory (Bohmian mechanics), Penrose & Transactional Interpretation explained simply</i> - by Arvin Ash</a> </li>
+  <li><a href="https://youtu.be/uVKMY-WTrVo" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>What is the i really doing in Schr&ouml;dinger's equation?</i> - by Welch Labs</a> </li>
+</ul><p>
+
+<b>Beyond Quantum Mechanics</b>
+
+</p><ul>
+  <li><a href="https://youtu.be/NsUm9mNXrX4" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>The Trouble with Gravity: Why Can't Quantum Mechanics explain it?</i> - by Arvin Ash</a> </li>
+  <li><a href="https://youtu.be/PutOOpAkjQ4" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>How QED Unites Relativity, Quantum Mechanics & Electromagnetism | Quantum Electrodynamics</i> - by Arvin Ash</a> </li>
+</ul>
+
+</div>
+<div class="arrow-nav">
+<a href="#mathematics" onclick="toggleView('part_2');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>
+<a href="#special_relativity" onclick="toggleView('part_4');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>
+</div>
+</section>
+
+
+
+<section class="chapter" id="part_4_wrap">
+<h2 id="special_relativity" style="display: flex; justify-content: center; text-align: center;">Special Relativity</h2>
+<div>
+
+<p><b>Overview:</b></p>
+
+<ul>
+  <li><i class="fas fa-star"></i> <a href="https://phy-hub.org/special-relativity" rel="noopener noreferrer" style="color: black" target="_blank"><i>Handbook of Special Relativity</i> - by Phy-Hub</a> </li>
+  <li><a href="https://openlibrary.org/books/OL8392037M/Relativity_Visualized" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>Relativity Visualized</i> - by Lewis Carroll Epstein</a> </li>
+  <li><a href="https://www.youtube.com/watch?v=uTyAI1LbdgA&list=PLu7cY2CPiRjVCbSWwSe0mXxWK0S8e8Ssx&index=18" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Special Relativity</i> - by ScienceClic</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLoaVOjvkzQtyjhV55wZcdicAz5KexgKvm" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Intro to special relativity</i> - by minutephysics</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PL712E709B05086D32" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Special relativity</i> - by minutephysics</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLchEOLrE108KU6bxnuitZuUtsZh2O68NP" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Special relativity, an introduction without calculus</i> - by James Battat</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLJHszsWbB6hqlw73QjgZcFh4DrkQLSCQa" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Relativity</i> - by eigenchris</a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Tests_of_special_relativity" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Tests of special relativity</i></a> </li>
+</ul><p>
+
+<b>Specific topic:</b>
+
+</p><ul>
+  <li><a href="https://www.youtube.com/watch?v=5qQheJn-FHc&list=PLu7cY2CPiRjVCbSWwSe0mXxWK0S8e8Ssx&index=12" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Visualizing Time Dilation</i> - by ScienceClic</a> </li>
+  <li><a href="https://www.youtube.com/watch?v=qdycfWfAtsM&list=PLu7cY2CPiRjVCbSWwSe0mXxWK0S8e8Ssx&index=17" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Spacetime rotations, understanding Lorentz transformations</i> - by ScienceClic</a> </li>
+  <li><a href="https://scienceready.com.au/pages/determination-of-speed-of-light" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>scienceready.com.au/pages/determination-of-speed-of-light</code></a> </li>
+  <li><a href="https://makingphysicsclear.com/force-and-acceleration-in-special-relativity/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>makingphysicsclear.com/force-and-acceleration-in-special-relativity</code></a> </li>
+</ul><p>
+
+<b>Webpage with interactive diagrams:</b>
+
+</p><ul>
+  <li><a href="https://javalab.org/en/category/measure_en/relativity_en/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>javalab.org/en/category/measure_<wbr>en/relativity_<wbr>en/</code></a> </li>
+  <li><a href="https://brilliant.org/courses/special-relativity/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>brilliant.org/courses/special-relativity</code></a> </li>
+  <li><a href="https://dmytry.github.io/space/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>dmytry.github.io/space</code></a> </li>
+</ul><p>
+
+<b>Spacetime Diagrams:</b>
+
+</p><ul>
+  <li><a href="https://youtube.com/playlist?list=PL4_IZ0OM6KAmSRVQXhLEW3CyLUULU4r2b" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>Minkowski Diagrams</i> - by Pretty Much Physics</a> </li>
+  <li><a href="https://ibises.org.uk/Minkowski.html" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>ibises.org.uk/Minkowski.html</code></a> </li>
+  <li><a href="https://tikz.net/relativity_minkowski_diagram/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>tikz.net/relativity_<wbr>minkowski_<wbr>diagram</code></a> </li>
+  <li><a href="https://prideout.net/blog/relativity/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>prideout.net/blog/relativity</code></a> </li>
+</ul>
+
+</div>
+<div class="arrow-nav">
+<a href="#quantum_mechanics" onclick="toggleView('part_3');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>
+<a href="#general_relativity_and_gravity" onclick="toggleView('part_5');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>
+</div>
+</section>
+
+
+
+<section class="chapter" id="part_5_wrap">
+<h2 id="general_relativity_and_gravity" style="display: flex; justify-content: center; text-align: center;">Gravity and General Relativity</h2>
+<div>
+
+<p><b>Overview</b></p>
+
+<ul>
+  <li><a href="https://openlibrary.org/books/OL8392037M/Relativity_Visualized" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-book" style="color: #825324;"></i> <i>Relativity Visualized</i> - by Lewis Carroll Epstein</a> </li>
+  <li><a href="https://youtu.be/DYq774z4dws" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>What is General Relativity?</i> - by ScienceClic</a> </li>
+  <li><a href="https://youtu.be/wrwgIjBUYVc" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>A new way to visualize General Relativity</i> - by ScienceClic</a> </li>
+  <li><a href="https://youtu.be/twPaOtfpneo" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Geodesics and Relativity</i> - by ScienceClic</a> </li>
+  <li><a href="https://youtube.com/playlist?list=PLu7cY2CPiRjVY-VaUZ69bXHZr5QslKbzo" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-list-ol"></i> <i class="fab fa-youtube" style="color: red;"></i> <i>The Maths of General Relativity</i> - by ScienceClic</a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Introduction_to_general_relativity" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Introduction to general relativity</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Tests_of_general_relativity" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Tests of general relativity</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/History_of_gravitational_theory" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>History of gravitational theory</i></a> </li>
+  <li><a href="https://en.wikipedia.org/wiki/Shapiro_time_delay" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-wikipedia-w"></i>ikipedia - <i>Shapiro time delay</i></a> </li>
+</ul>
+
+</div>
+<div class="arrow-nav">
+<a href="#special_relativity" onclick="toggleView('part_4');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>
+<a href="#coding_and_latex" onclick="toggleView('part_6');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>
+</div>
+</section>
+
+
+
+
+<section class="chapter" id="part_6_wrap">
+<h2 id="coding_and_latex" style="display: flex; justify-content: center; text-align: center;">Coding and LaTeX</h2>
+<div>
+
+<p><b>Coding</b></p>
+<p>
+For coding IDE I recomend VS Code as it has a massive userbase with many useful extensions, such as one that allows you to use LaTeX for doing scientific writing.
+</p>
+<ul>
+  <li><a href="https://code.visualstudio.com/docs/introvideos/basics" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>code.visualstudio.com/docs/introvideos/basics</code></a> </li>
+</ul>
+
+<p>Simple explaination of coding concepts:</p>
+
+<ul>
+  <li><a href="https://brilliant.org/topics/coding/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>brilliant.org/topics/coding/</code></a> </li>
+</ul>
+
+<p><b>Python</b></p>
+<p>
+Python is a great coding language for scientific and mathmatical programing as well as general purpose programing, it has a large user base and set of libraries for science and math.
+</p>
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=s3IvdkCq2_c" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fab fa-youtube" style="color: red;"></i> <i>Beginner Python Programming All-in-One Tutorial Series</i> - by Caleb Curry</a> </li>
+  <li><a href="https://www.w3schools.com/python/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>w3schools.com/python</code></a> </li>
+  <li><a href="https://www.python.org/about/gettingstarted/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>python.org/about/gettingstarted/</code></a> </li>
+</ul>
+
+<p><b>LaTeX</b></p>
+<p>
+LaTeX is a word proccessor used in physics and math to write notes, papers, books and more, as it is easier to write math and also reformat documents (once you have learnt the basics that is).
+</p>
+<p>
+The easiest way to start LaTeX is by using the overleaf website, but once you get on to longer or more complex documents I recommend downloading MikTex and the VS code extension
+</p>
+<ul>
+  <li><a href="https://www.overleaf.com/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>overleaf.com/</code></a> </li>
+  <li><a href="https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>overleaf.com/learn/latex/Learn_<wbr>LaTeX_<wbr>in_<wbr>30_<wbr>minutes</code></a> </li>
+  <li><a href="https://learn.overleaf.com/path/novice-learning-path" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>learn.overleaf.com/path/novice-learning-path</code></a> </li>
+  <li><a href="https://www.tug.org/texlive/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>www.tug.org/texlive/</code></a> </li>
+  <li><a href="https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop</code></a> </li>
+</ul>
+
+<p><b>Symbolic Computation</b></p>
+<p>
+Mathematica is a powerful language if you are looking to perform symbolically computations (i.e. Deriving equations, by solvinging equations such as differentials and integrals exactly and giving back an equation as the output instead of just values). This is very helpful for solving equations you are having difficulty with, but unfortunately Mathematica is not free.
+</p>
+<p>
+However there are two free alternatives, which are wolframalpha, which can be used for simple and less computational intensive derivations, and Python's SymPy Library which can perform most of what you can with Mathematica.
+</p>
+<ul>
+  <li><a href="https://www.wolframalpha.com" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>wolframalpha.com</code></a> </li>
+  <li><a href="https://www.wolfram.com/mathematica/" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>wolfram.com/mathematica</code></a> </li>
+  <li><a href="https://www.datacamp.com/tutorial/sympy" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>datacamp.com/tutorial/sympy</code></a> </li>
+  <li><a href="https://acme.byu.edu/00000179-d4cb-d26e-a37b-fffb577c0001/sympy-pdf" rel="noopener noreferrer" style="color: black" target="_blank"><i class="fas fa-globe" style="color: #0000E6;"></i> <code>acme.byu.edu/00000179-d4cb-d26e-a37b-fffb577c0001/sympy-pdf</code></a> </li>
+</ul>
+
+</div>
+<div class="arrow-nav">
+<a href="#general_relativity_and_gravity" onclick="toggleView('part_5');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>
+</div>
+</section>
+
+
+
+
+
+</article>
+
+  <!--- Sidebar -->
+  <aside class="sidebar">
+    <div style="flex: 1; overflow-y: auto; padding: 10px;"></div>
+
+    <div id="suggestion-wrapper" style="text-align: right; flex: 0 0 auto; width: 100%; box-sizing: border-box; padding: 10px; padding-left: 20px; padding-right: 15px;">
+      <span id="suggestion-toggle" style="cursor: pointer; font-size: 0.9rem; color: #555;">
+          <span id="suggestion-arrow" style="cursor: pointer;">▶</span> <span id="suggestion-text" style="cursor: pointer; text-decoration: underline;">Send Suggestions</span>
+      </span>
+      <form id="suggestion-form" action="https://formspree.io/f/mvzwavap" method="POST" style="display: none; margin-top: 10px; text-align: left;">
+          <input type="hidden" name="_subject" value="suggestion box">
+
+          <input type="email" name="email" autocomplete="email" placeholder="Your email (optional)" style="width: 100%; box-sizing: border-box; border-radius: 4px; border: 1px solid #999; padding: 6px; margin-bottom: 8px; font-family: inherit; font-size: 0.8rem;">
+
+          <textarea name="message" required style="width: 100%; height: 80px; box-sizing: border-box; border-radius: 4px; border: 1px solid #999; padding: 6px; font-family: inherit; font-size: 0.8rem;" placeholder="Spot a mistake or have a suggestion? Let me know..."></textarea>
+
+          <button id="suggestion-submit-btn" type="submit" style="margin-top: 5px; width: 100%; background-color: #555; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">
+              Send
+          </button>
+      </form>
+    </div>
+  </aside>
+
+<div id="toc-backdrop"></div>
+
+<button id="mobile-toc-btn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="4" cy="6" r="1.5" fill="currentColor"></circle>
+    <circle cx="4" cy="12" r="1.5" fill="currentColor"></circle>
+    <circle cx="4" cy="18" r="1.5" fill="currentColor"></circle>
+    <line x1="9" y1="6" x2="21" y2="6"></line>
+    <line x1="9" y1="12" x2="21" y2="12"></line>
+    <line x1="9" y1="18" x2="21" y2="18"></line>
+  </svg>
+  Contents
+</button>
+</main>
+
+<!--- scripts -->
+<script>
+// 0. Prevent Native Hash Jump on Load
+// We capture the hash immediately and clear it from the URL.
+// This stops the browser from doing a native jump to the header before DOMContentLoaded.
+const initialHash = window.location.hash;
+if (initialHash) {
+    window.history.replaceState(null, null, window.location.pathname + window.location.search);
+}
+
+// Stop the browser from restoring the previous scroll position
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+
+// 1. Core Functions (Hoisted)
+function toggleView(id) {
+    document.querySelectorAll('[id$="_wrap"]').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('#toc_container .toc-link').forEach(el => el.classList.remove('toc-active'));
+
+    const targetWrap = document.getElementById(`${id}_wrap`);
+    if (targetWrap) targetWrap.style.display = 'block';
+
+    document.getElementById(`link_${id}`)?.classList.add('toc-active');
+}
+
+const handleHashNav = (isInitialLoad = false) => {
+    // Use the initialHash if it's the first load, otherwise get the current hash
+    const hash = isInitialLoad ? initialHash : window.location.hash;
+
+    if (hash) {
+        const targetElement = document.querySelector(hash);
+        const wrapper = targetElement?.closest('.chapter');
+
+        if (wrapper) {
+            toggleView(wrapper.id.replace('_wrap', ''));
+
+            // Put the hash back in the URL bar quietly if it's the initial load
+            if (isInitialLoad) {
+                window.history.replaceState(null, null, hash);
+            }
+
+            // Force scroll to top
+            setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: isInitialLoad ? 'auto' : 'smooth' }), 10);
+        }
+    } else if (isInitialLoad) {
+        const firstPartLink = document.querySelector('.toc-part-link');
+        if (firstPartLink) {
+            const partId = firstPartLink.getAttribute('onclick')?.match(/'([^']+)'/)?.[1];
+            if (partId) toggleView(partId);
+        }
+        setTimeout(() => window.scrollTo({ top: 0, left: 0, behavior: 'auto' }), 10);
+    }
+
+    if (isInitialLoad) document.body.classList.add('start-fade');
+};
+
+async function initBannerAnimation() {
+    try {
+        const response = await fetch('/media/Logo/DS_Pattern_filtered.csv');
+        const data = await response.text();
+
+        const banner = document.getElementById('banner');
+        if (!banner) return;
+        banner.innerHTML = '';
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = "100%";
+        canvas.style.height = "54px";
+        banner.appendChild(canvas);
+
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+
+        const values = data.trim().split(',').filter(Boolean);
+        const myDots = [];
+        const totalItems = values.length / 2;
+        const timePerItemSlow = 4 / 2000;
+        const timePerItemFast = (4 - (timePerItemSlow * 200)) / (totalItems - 100);
+
+        const svgMinX = -3.92, svgWidth = 7.84, svgMinY = 0.0, svgHeight = 0.5;
+        const dotRadius = (0.017 / svgWidth) * rect.width / 2;
+
+        for (let i = 0; i < totalItems; i++) {
+            const rawX = parseFloat(values[i * 2]);
+            const rawY = parseFloat(values[i * 2 + 1]);
+            if (isNaN(rawX) || isNaN(rawY)) continue;
+
+            const pixelX = ((rawX - svgMinX) / svgWidth) * rect.width;
+            const pixelY = ((rawY - svgMinY) / svgHeight) * rect.height;
+
+            const delayMs = (i < 300
+                ? i * timePerItemSlow
+                : (i - 300) * timePerItemFast + 300 * timePerItemSlow) * 1000;
+
+            myDots.push({ x: pixelX, y: pixelY, appearTime: delayMs });
+        }
+
+        let startTime = null;
+        let dotsDrawn = 0;
+        ctx.fillStyle = 'black';
+
+        function render(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+
+            while (dotsDrawn < myDots.length && myDots[dotsDrawn].appearTime <= elapsed) {
+                const dot = myDots[dotsDrawn];
+                ctx.beginPath();
+                ctx.arc(dot.x, dot.y, dotRadius, 0, Math.PI * 2);
+                ctx.fill();
+                dotsDrawn++;
+            }
+            if (dotsDrawn < myDots.length) requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    } catch (error) {
+        console.error("Error loading CSV:", error);
+    }
+}
+
+// 2. Main Initialization
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Intercept clicks on links pointing to hashes within the page to prevent the native scroll 'jump' down
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId !== '#' && targetId !== '') {
+                e.preventDefault();
+
+                // Manually push the state to update the URL
+                if (history.pushState) {
+                    history.pushState(null, null, targetId);
+                } else {
+                    location.hash = targetId;
+                }
+
+                // Fire custom navigation logic that now handles scrolling up
+                handleHashNav(false);
+            }
+        });
+    });
+
+    // --- Routing & Hashes ---
+    handleHashNav(true);
+    window.addEventListener('hashchange', () => handleHashNav(false));
+
+    // --- Mobile TOC Toggle ---
+    const tocSidebar = document.getElementById('tocsidebar');
+    const tocBackdrop = document.getElementById('toc-backdrop');
+
+    const toggleMenu = (forceState) => {
+        const action = forceState === false ? 'remove' : 'toggle';
+        tocSidebar?.classList[action]('mobile-active');
+        tocBackdrop?.classList[action]('mobile-active');
+    };
+
+    document.getElementById('mobile-toc-btn')?.addEventListener('click', () => toggleMenu());
+    tocBackdrop?.addEventListener('click', () => toggleMenu(false));
+
+    // --- Suggestion Form ---
+    const suggestionForm = document.getElementById('suggestion-form');
+    const suggestionText = document.getElementById('suggestion-text');
+    const suggestionArrow = document.getElementById('suggestion-arrow');
+    const submitBtn = document.getElementById('suggestion-submit-btn');
+
+    document.getElementById('suggestion-toggle')?.addEventListener('click', () => {
+        if (suggestionText.innerText === 'Suggestion sent!') return;
+        const isHidden = suggestionForm.style.display === 'none' || !suggestionForm.style.display;
+
+        suggestionForm.style.display = isHidden ? 'block' : 'none';
+        suggestionArrow.innerText = isHidden ? '▼' : '▶';
+    });
+
+    suggestionForm?.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const originalBtnText = submitBtn.innerText;
+
+        submitBtn.innerText = 'Sending...';
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.7';
+
+        try {
+            const response = await fetch(this.action, {
+                method: this.method,
+                body: new FormData(this),
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+
+            this.style.display = 'none';
+            suggestionArrow.innerText = '✓';
+            suggestionArrow.style.color = 'green';
+            suggestionText.innerText = 'Suggestion sent!';
+            suggestionText.style.textDecoration = 'none';
+            document.getElementById('suggestion-toggle').style.cursor = 'default';
+
+        } catch (error) {
+            submitBtn.innerText = 'Error! Try again.';
+            submitBtn.style.backgroundColor = '#cc0000';
+
+            setTimeout(() => {
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.backgroundColor = '#555';
+            }, 3000);
+        }
+    });
+
+    // --- Banner Animation ---
+    initBannerAnimation();
+});
+
+// 3. Fading Animation Cleanup
+document.addEventListener('animationend', (e) => {
+    if (e.animationName === 'fadeIn') {
+        document.body.classList.remove('initial-load');
+        document.querySelector('article')?.classList.remove('initial-load');
+    }
+}, { once: true });
+
+</script>
+
+<script data-goatcounter="https://phyhub.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,26 @@
+Sitemap: https://phy-hub.org/sitemap.xml
+
+User-agent: *
+
+# - Explicitly allow the specific subfolders (specific allow rules override broader ones)
+Allow: /topics/special-relativity/Latex/output/
+Allow: /topics/special-relativity/Latex/images/svg/
+
+# - Disallow the specific folders
+Disallow: /topics/SCRIPTS/
+Disallow: /topics/special-relativity/Latex/
+
+# - BLOCK AI SCRAPERS AND LLM TRAINING BOTS
+User-agent: GPTBot
+User-agent: Anthropic-ai
+User-agent: Claude-Web
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: CCBot
+User-agent: Omgilibot
+User-agent: FacebookBot
+User-agent: PerplexityBot
+User-agent: cohere-ai
+User-agent: Applebot-Extended
+User-agent: YouBot
+Disallow: /

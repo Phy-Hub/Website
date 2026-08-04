@@ -1,0 +1,2094 @@
+###
+import subprocess
+import re
+import os
+import sys
+import urllib.request, urllib.error
+from datetime import datetime
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
+
+### passed variables:
+topic_folder_name = sys.argv[1]
+pdf_name = sys.argv[2]
+Topic_Name = sys.argv[3]
+
+#sep#######################################################
+#sep Paths ################################################
+#sep#######################################################
+
+### from make_page.py ###
+py_to_page_structure = "../SCRIPTS/Structure_Page.html"
+py_to_output_page    = "../../" + topic_folder_name + ".html"
+py_to_main_tex       = "Latex/Main_Matter.tex"
+py_to_defs           = "Latex/Tex/Terms/Definitions.tex"
+py_to_resources      = "Latex/Tex/Resources.tex"
+py_to_intro          = "Latex/Tex/Front_Matter.tex"
+py_to_outro          = "Latex/Tex/Outro.tex"
+py_to_terms          = "Latex/Tex/Terms"
+py_to_term_comands   = "Latex/Tex/Terms/Term_commands.tex"
+py_to_tikz           = "Latex/output/tikz/"
+py_to_svgs           = "Latex/images/svg/"
+#py_to_pdfs           = "Latex/images/pdf/"
+py_to_bib            = "Latex/refs.bib"
+py_to_bugs           = "bugs/"
+
+
+### from html page ###
+html_to_svgs         = "/topics/" + topic_folder_name + "/" + py_to_svgs
+html_to_pdfs         = "/topics/" + topic_folder_name + "/Latex/output/" + pdf_name
+#html_to_js_diagrams  = "/"
+html_to_anim_figs    = "/media/animated_figs/"
+
+
+#sep#######################################################
+#sep Formatting ###########################################
+#sep#######################################################
+###
+def replace(filename, pattern, replacement):
+    with open(filename, 'r', encoding='utf-8') as file:
+        filedata = file.read()
+
+    filedata = re.sub(pattern, replacement, filedata)
+
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(filedata)
+
+###
+def replace_blank_lines(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    with open(filename, 'w', encoding='utf-8') as file:
+        for line in lines:
+            if line.strip() == '':
+                file.write('<br>\n')
+            else:
+                file.write(line)
+
+###
+def remove_comments(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    with open(filename, 'w', encoding='utf-8') as file:
+        for line in lines:
+            # 1. If the line is already blank/empty, preserve it and skip to the next
+            if not line.strip():
+                file.write(line)
+                continue
+
+            # 2. Remove everything from the '%' character onward
+            cleaned_line = re.sub(r'%.*', '', line)
+
+            # 3. Only write the line if it still contains code after removing the comment
+            if cleaned_line.strip():
+                file.write(cleaned_line)
+
+###
+def colorbox_replace(filename):
+    # Read the LaTeX file
+    with open(filename, 'r', encoding='utf-8') as file:
+        latex_content = file.read()
+
+    # Regular expression pattern
+    pattern = r"\\begin{tcolorbox}\[breakable\]\n\\begin{enumerate}(.*?)\\end{enumerate}\n\\end{tcolorbox}"
+    replacement = r'<div style="border: 3px solid black; background-color: #fff9cf; padding: 10px; border-radius: 10px;">\1</div>'
+
+    # Replace \item with <li> and add closing </li>
+    latex_content = re.sub(r"\\item\s+(.*?)\n", r"<li>\1</li>\n", latex_content)
+
+    # Perform the replacement
+    html_content = re.sub(pattern, replacement, latex_content, flags=re.DOTALL)
+
+    # Overwrite the original file with the HTML content
+    with open(filename, 'w', encoding='utf-8') as file:
+        file.write(html_content)
+
+###
+import re
+from bs4 import BeautifulSoup, NavigableString, Tag
+
+def format_html_paragraphs(file_path):
+    # 1. Read the raw HTML file
+    with open(file_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+
+    # 2. Isolate the <article> tag to strictly protect the rest of the file
+    match = re.search(r'(<article[^>]*>)(.*?)(</article>)', html_content, flags=re.DOTALL | re.IGNORECASE)
+    if not match:
+        print("Could not find the <article> tag.")
+        return
+
+    article_open = match.group(1)
+    article_inner = match.group(2)
+    article_close = match.group(3)
+
+    # 3. Parse only the inner contents of the <article> tag
+    soup = BeautifulSoup(article_inner, 'html.parser')
+
+    # Tags that signify a structural block boundary
+    BLOCK_TAGS = {
+        'div', 'figure', 'figcaption', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'table', 'blockquote', 'section', 'header', 'nav',
+        'aside', 'main', 'p', 'hr', 'svg', 'math', 'details', 'summary',
+        'canvas', 'iframe', 'video', 'audio', 'script', 'style', 'footer'
+    }
+
+    # Tags whose inner contents should NEVER be wrapped in <p> tags
+    NO_WRAP_INSIDE = {
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'figure', 'figcaption',
+        'svg', 'math', 'button', 'header', 'nav', 'script', 'style', 'p', 'blockquote', 'footer'
+    }
+
+    def process_container(container, should_wrap=True):
+        # If this is a container that shouldn't have <p> tags inside it,
+        # we skip modifying it and just traverse down harmlessly.
+        if not should_wrap:
+            for child in container.find_all(recursive=False):
+                process_container(child, False)
+            return
+
+        new_children = []
+        current_p_contents = []
+
+        def flush_p():
+            """Wraps accumulated loose text and inline tags into a <p> tag."""
+            # Check if there is anything substantial to wrap (ignore pure whitespace and lonely <br> tags)
+            has_meaningful_content = False
+            for c in current_p_contents:
+                if isinstance(c, Tag) and c.name not in ['br']:
+                    has_meaningful_content = True
+                elif isinstance(c, NavigableString) and str(c).strip():
+                    has_meaningful_content = True
+
+            if has_meaningful_content:
+                # Safety net: skip math/equation text
+                text_content = "".join(str(c) for c in current_p_contents)
+                if r'\begin{equation}' in text_content or r'\[' in text_content:
+                    for c in current_p_contents:
+                        new_children.append(c)
+                else:
+                    # Actually wrap in <p> tag
+                    p_tag = soup.new_tag('p')
+                    for c in current_p_contents:
+                        p_tag.append(c)
+                    new_children.append(p_tag)
+            elif current_p_contents:
+                # It's purely whitespace or <br> tags, append them directly WITHOUT a <p> tag
+                for c in current_p_contents:
+                    new_children.append(c)
+
+            current_p_contents.clear()
+
+        # Iterate over a copy of the children to rebuild the container
+        for child in list(container.contents):
+            if isinstance(child, Tag):
+                if child.name in BLOCK_TAGS:
+                    flush_p() # Hit a block tag, flush accumulated inline text
+
+                    # Determine if we should format paragraphs inside THIS specific block
+                    wrap_inside = child.name not in NO_WRAP_INSIDE
+
+                    # Custom rule: Don't mess with the insides of math divs or navigation arrows
+                    if child.name == 'div':
+                        classes = child.get('class', [])
+                        if 'math' in classes or 'arrow-nav' in classes or 'navbar' in classes:
+                            wrap_inside = False
+
+                    process_container(child, should_wrap=wrap_inside)
+                    new_children.append(child)
+                else:
+                    # Inline tag (e.g., <span>, <a>, <b>), treat as part of paragraph
+                    current_p_contents.append(child)
+
+            elif isinstance(child, NavigableString):
+                text = str(child)
+                # Split by blank lines (2 or more newlines)
+                parts = re.split(r'(\n[ \t]*\n+)', text)
+
+                for part in parts:
+                    if re.match(r'\n[ \t]*\n+', part):
+                        flush_p() # Blank line delimiter found
+                        new_children.append(NavigableString(part))
+                    else:
+                        if part:
+                            current_p_contents.append(NavigableString(part))
+            else:
+                # Comments, etc.
+                current_p_contents.append(child)
+
+        flush_p() # Flush anything remaining at the very end
+
+        # Replace old contents with newly wrapped contents
+        container.clear()
+        for child in new_children:
+            container.append(child)
+
+    # 4. Process the HTML tree starting at the root of the isolated article
+    process_container(soup, should_wrap=True)
+
+    # 5. Reconstruct the full HTML file
+    new_article_inner = soup.decode(formatter="html5")
+
+    new_article_inner = re.sub(r'</img\s*>', '', new_article_inner, flags=re.IGNORECASE)
+    new_article_inner = re.sub(r'<((?:img|br|hr|input)[^>]*?)\s*/>', r'<\1>', new_article_inner, flags=re.IGNORECASE)
+
+    new_article_inner = new_article_inner.replace('viewbox=', 'viewBox=')
+
+    # Ensure </p> starts on a new line if it isn't already
+    new_article_inner = re.sub(r'(?<!\n)</p>', r'\n</p>', new_article_inner)
+
+    # Ensure <p> starts a new line after it (if it isn't already followed by a newline)
+    new_article_inner = re.sub(r'<p>(?!\n)', r'<p>\n', new_article_inner)
+
+    new_html = html_content[:match.start(2)] + new_article_inner + html_content[match.end(2):]
+
+    # 6. Overwrite the file with the updated HTML
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(new_html)
+
+    print("Successfully formatted paragraphs inside the <article> tag!")
+
+
+
+###
+def wrap_content(latex_file):
+    with open(latex_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    lines = content.splitlines()
+
+    # 1. PRE-SCAN: Map Chapters to Parts
+    chapter_part_map = {}
+    temp_part_count = 0
+    temp_ch_count = 0
+
+    for line in lines:
+        if re.search(r'\\part(?:\[.*?\])?\{(.+?)\}', line):
+            # Ignore the "Intro" when counting parts
+            if not re.search(r'\{Intro\}|\{Introduction\}', line, re.IGNORECASE):
+                temp_part_count += 1
+        elif re.search(r'\\chapter(?:\[.*?\])?\{(.+?)\}', line):
+            temp_ch_count += 1
+            chapter_part_map[temp_ch_count] = temp_part_count
+
+    total_chapters = temp_ch_count
+
+    # 2. SETUP
+    LEVELS = {
+        'chapter': (0, 3),
+        'section': (1, 4),
+        'subsection': (2, 5),
+        'subsubsection': (3, 6)
+    }
+
+    nums = [0, 0, 0, 0]  # [ch, sec, subsec, subsubsec]
+    output = []
+    in_part = False
+    in_intro = False  # NEW TRACKER
+    part_count = 0
+    outro_reached = False
+
+    # 3. HELPER FUNCTIONS
+    def get_nav_footer(current_ch, current_part):
+        prev_ch = current_ch - 1
+        next_ch = current_ch + 1
+
+        if prev_ch >= 1:
+            prev_part = chapter_part_map.get(prev_ch, 0)
+            prev_id = f"part_{prev_part}_ch{prev_ch}"
+            prev_btn = (f'<a href="#{prev_id}_wrap" onclick="syncToc(\'{prev_id}_toc\');" '
+                        f'style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>\n')
+        else:
+            # --- NEW LOGIC: Point first chapter back to intro ---
+            prev_btn = '<a href="#intro_wrap" onclick="toggleView(\'intro\');" style="font-weight: bold; padding-left: 10px; cursor: pointer;"> &lt; Previous </a>\n'
+
+        if next_ch <= total_chapters:
+            next_part = chapter_part_map.get(next_ch, 0)
+            next_id = f"part_{next_part}_ch{next_ch}"
+            next_btn = (f'<a href="#{next_id}_wrap" onclick="syncToc(\'{next_id}_toc\');" '
+                        f'style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>\n')
+        else:
+            next_btn = ""
+
+        return f'\n\n<div class="arrow-nav">\n{prev_btn}{next_btn}</div>\n\n</section>\n'
+
+    def close_tags(target_depth, reset_counters=True):
+        for i in range(3, target_depth - 1, -1):
+            if nums[i] > 0:
+                if not in_part and not in_intro:
+                    output.append('</div>')
+                if i > target_depth and reset_counters:
+                    nums[i] = 0
+
+    def close_block(reset_counters=True):
+        close_tags(1, reset_counters=reset_counters)
+        # --- NEW LOGIC: Append nav arrows specifically for the Intro ---
+        if in_intro:
+            output.append('</div>')
+            output.append('\n<div class="arrow-nav">\n<a></a>\n<a href="#part_1_ch1_wrap" onclick="syncToc(\'part_1_ch1_toc\');" style="font-weight: bold; text-align: right; padding-right: 10px; cursor: pointer;"> Next &gt; </a>\n</div>\n</section>\n')
+        elif in_part:
+            output.append('</div>')
+            output.append('</section>\n')
+        elif nums[0] > 0:
+            output.append(f'</div>{get_nav_footer(nums[0], part_count)}')
+
+    #  4. MAIN PARSING LOOP
+    for line in lines:
+        line = line.strip()
+
+        # Handle Parts
+        part_match = re.search(r'\\part(?:\[.*?\])?\{(.+?)\}', line)
+        if part_match:
+            title = part_match.group(1).strip()
+            close_block(reset_counters=False)
+
+            # --- NEW LOGIC: Fork between Intro and normal Part ---
+            if title.lower() in ['intro', 'introduction']:
+                in_intro = True
+                in_part = False
+                output.append(f'<section id="intro_wrap" class="chapter part-wrapper">')
+                output.append(f'<h2 class="part_header" id="intro_header" style="display: flex; justify-content: center; text-align: center;">Introduction</h2>')
+                output.append(f'<div id="intro_content">')
+            else:
+                in_intro = False
+                in_part = True
+                part_count += 1
+                output.append(f'<section id="part_{part_count}_wrap" class="chapter part-wrapper">')
+                output.append(f'<h2 class="part_header" id="part_{part_count}_header" style="display: flex; justify-content: center; text-align: center;">Part {to_roman(part_count)}.<br>{title}</h2>')
+                output.append(f'<div id="part_{part_count}_content">')
+            continue
+
+        # Handle Chapters and Sections
+        cmd_match = re.search(r'\\(chapter|section|subsection|subsubsection)(?:\[.*?\])?\{(.+?)\}', line)
+        if cmd_match:
+            cmd, title = cmd_match.groups()
+            depth, h_lvl = LEVELS[cmd]
+
+            if depth == 0: # Chapter
+                close_block()
+                in_part = False
+                in_intro = False
+                nums[0] += 1
+                nums[1:] = [0, 0, 0]
+
+                if title.strip().lower() == 'outro':
+                    outro_reached = True
+
+                current_id_base = f"part_{part_count}_ch{nums[0]}"
+                display = ' style="display: none !important;"' if nums[0] > 1 else ""
+
+                if outro_reached:
+                    header_text = title
+                else:
+                    header_text = f"Chapter {nums[0]}. {title}"
+
+                output.append(f'<section id="{current_id_base}_wrap" class="chapter" {display}>\n'
+                              f'<h3 id="{current_id_base}_header" class="chapter_header" style="display: flex; justify-content: center; text-align: center;">{header_text}</h3>')
+                output.append(f'<div id="{current_id_base}_content">\n<span style="display: none">\\(\\nextSection\\)</span>')
+            else:
+                close_tags(depth)
+                nums[depth] += 1
+
+                suffix_str = "_".join(map(str, nums[:depth+1]))
+                id_str = f"part_{part_count}_ch{suffix_str}"
+
+                prefix = ".".join(map(str, nums[:depth+1])) if depth < 3 else ""
+                output.append(f'<h{h_lvl} id="{id_str}_header">{prefix} {title}</h{h_lvl}>\n<div id="{id_str}_content">')
+            continue
+
+        output.append(line)
+
+    close_block() # Final cleanup
+
+    with open(latex_file, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(output))
+
+
+#sep#######################################################
+#sep Graphics #############################################
+#sep#######################################################
+
+def extract_command_content(text, start_str=r"\textbf{"):
+
+    if not text:
+        return ""
+
+    start_idx = text.find(start_str)
+    if start_idx == -1:
+        return ""  # command not found
+
+    content_start = start_idx + len(start_str)
+    brace_count = 1
+
+    for i in range(content_start, len(text)):
+        if text[i] == '{':
+            brace_count += 1
+        elif text[i] == '}':
+            brace_count -= 1
+
+        if brace_count == 0:
+            extracted = text[content_start:i]
+
+            # Strip out \protect\hyperlink{target}{text}
+            extracted = re.sub(r'(?:\\protect)?\\hyperlink\{[^}]*\}\{([^}]*)\}', r'\1', extracted)
+
+            # Escape double quotes so they don't break the HTML alt attribute
+            extracted = extracted.replace('"', '&quot;')
+            return extracted
+
+    return "" # Fallback if brackets are unbalanced
+
+
+def Figures_to_HTML(file):
+    with open(file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    chapter_counter = 0
+    figure_counter = 0
+
+    chapter_starts = re.findall(r'\\chapter\{.*?\}', content)
+
+    for chapter_index, chapter_start in enumerate(chapter_starts):
+        chapter_num = chapter_index + 1
+
+        next_chapter_index = chapter_index + 1
+        if next_chapter_index < len(chapter_starts):
+            chapter_end_index = content.find(chapter_starts[next_chapter_index])
+        else:
+            chapter_end_index = len(content)
+
+        chapter_content = content[content.find(chapter_start):chapter_end_index]
+
+        figure_envs = re.findall(r'\\begin{figure}.*?\\end{figure}', chapter_content, re.DOTALL)
+
+        for figure_env in figure_envs:
+            figure_counter += 1
+            subfigure_envs = re.findall(r'\\begin{subfigure}.*?\\end{subfigure}', figure_env, re.DOTALL)
+
+            if subfigure_envs:
+                # Extract main figure caption and label FIRST
+                caption_match = re.search(r'\\caption\{(?P<caption>.*\})', figure_env)
+                label_match = re.search(r'\\label\{(?P<label>.*\})', figure_env)
+
+                replacement = f'<br>\n \t <figure class="subfigures" '
+                if label_match:
+                    main_fig_label = find_label_from_key(fig_dict, f"{chapter_num}_{figure_counter}")
+                    replacement += f' id="{main_fig_label}"'  # Add ID to <figure>
+                replacement += '>\n <div style="display: flex; justify-content: space-between;">\n'
+
+                subfig_letter = 'a'
+                for subfigure_env in subfigure_envs:
+                    # NEW: Pass the parent figure_env down so we can extract the main \figmetatitle
+                    replacement += '   ' + process_figure(subfigure_env, chapter_num, figure_counter, subfig_letter, figure_env) + '\n'
+                    subfig_letter = chr(ord(subfig_letter) + 1)
+
+                replacement += '</div>\n'
+
+                main_caption = find_caption_from_key(fig_dict, f"{chapter_num}_{figure_counter}")
+
+                if caption_match:
+                    replacement += f'<figcaption>Figure {chapter_num}.{figure_counter}: {main_caption}</figcaption>\n'
+                replacement += '</figure>'
+
+            else:
+                replacement = process_figure(figure_env, chapter_num, figure_counter, '')
+
+            content = content.replace(figure_env, replacement)
+
+        figure_counter = 0  # Reset for next chapter
+
+    with open(file, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+
+# NEW: Added parent_figure_env argument (defaulting to empty string for single figures)
+def process_figure(figure_env, chapter_num, figure_counter, subfig_letter, parent_figure_env=""):
+    include_graphics_match = re.search(r'\\includegraphics(\[.*?\])?\{(?P<filename>.*?)\}', figure_env)
+    tikzpicture_env_match = re.search(r'(\\begin{tikzpicture}.*?\\end{tikzpicture})', figure_env, re.DOTALL)
+    tikzfilename_match = re.search(r'\\tikzsetnextfilename\{(?P<filename>.*?)\}', figure_env)
+    caption_match = re.search(r'\\caption\{(?P<caption>.*\})', figure_env)
+    label_match = re.search(r'\\label\{(?P<label>.*\})', figure_env)
+
+    if include_graphics_match or tikzpicture_env_match:
+        filename = include_graphics_match.group('filename') if include_graphics_match else tikzfilename_match.group('filename') if tikzfilename_match else 'missing'
+        filename = os.path.splitext(os.path.basename(filename))[0] + '.svg'
+
+        if not os.path.isfile(py_to_svgs + f'{filename}'):
+            print(" # \n # no file: " + py_to_svgs + f"{filename} \n #")
+
+        if label_match:
+            if subfig_letter:
+                fig_id = ' id="' + find_label_from_key(fig_dict, f"{chapter_num}_{figure_counter}_{subfig_letter}") + '"'
+            else:
+                fig_id = ' id="' + find_label_from_key(fig_dict, f"{chapter_num}_{figure_counter}") + '"'
+        else:
+            fig_id = ''
+
+        if caption_match:
+            caption_text = caption_match.group("caption")[:-1]
+        else:
+            caption_text = ""
+
+        if "\\begin{subfigure}" in figure_env:
+            figclass = 'class="subfigure"'
+            caption = f"{subfig_letter}) {caption_text}"
+
+            main_caption_raw = find_caption_from_key(fig_dict, f"{chapter_num}_{figure_counter}")
+            if not main_caption_raw:
+                main_caption_raw = ""
+
+            # --- NEW: Extract Main Title ---
+            # Remove subfigures from the parent environment temporarily so we don't accidentally grab a subfigure's \figmetatitle
+            parent_clean = re.sub(r'\\begin\{subfigure\}.*?\\end\{subfigure\}', '', parent_figure_env, flags=re.DOTALL)
+
+            main_alt = extract_command_content(parent_clean, r"\figmetatitle{")
+            if not main_alt:
+                main_alt = extract_command_content(main_caption_raw, r"\textbf{")
+
+            # --- NEW: Extract Subfigure Title ---
+            sub_alt = extract_command_content(figure_env, r"\figmetatitle{")
+            if not sub_alt:
+                sub_alt = extract_command_content(caption_text, r"\textbf{")
+
+            # Fallback for subfigures without \figmetatitle or \textbf{...}
+            if not sub_alt and caption_text:
+                sub_alt = re.sub(r'(?:\\protect)?\\hyperlink\{[^}]*\}\{([^}]*)\}', r'\1', caption_text)
+                sub_alt = sub_alt.replace('"', '&quot;')
+
+            # Combine them with a colon if both exist
+            if main_alt and sub_alt:
+                alt_text = f"{main_alt}: {sub_alt}"
+            elif main_alt:
+                alt_text = main_alt
+            else:
+                alt_text = sub_alt
+
+        else:
+            caption_text = find_caption_from_key(fig_dict, f"{chapter_num}_{figure_counter}")
+            if find_label_from_key(fig_dict, f"{chapter_num}_{figure_counter}"):
+                fig_id = ' id="' + find_label_from_key(fig_dict, f"{chapter_num}_{figure_counter}") + '"'
+            else:
+                fig_id = ''
+            figclass = 'class="singlefigure"'
+            caption = f"Figure {chapter_num}.{figure_counter}: {caption_text}"
+
+            # --- NEW: Alt text for a standard single figure ---
+            alt_text = extract_command_content(figure_env, r"\figmetatitle{")
+            if not alt_text:
+                alt_text = extract_command_content(caption_text, r"\textbf{")
+
+        # Remove any periods from the final alt text
+        alt_text = alt_text.replace('.', '')
+        alt_text = alt_text.replace(r'\newline', '')
+        alt_attr = f' alt="A figure showing {alt_text}"' if alt_text else ' alt="" '
+
+        return f'<figure ' + figclass + fig_id +'>\n<img src="' + html_to_svgs + f'{filename}"{alt_attr} loading="lazy">\n<figcaption>{caption}</figcaption>\n</figure>'
+
+    else:
+        return '*** svg figure missing ***'
+
+###
+def tikz2svg(input_directory, output_directory):
+    pdf_files = [f for f in os.listdir(input_directory) if f.endswith('.pdf')]
+    os.makedirs(output_directory, exist_ok=True)
+
+    desc_content = "<desc>A figure created by Phy-Hub, for The Handbook of Special Relativity</desc>"
+
+    # The exact string you want to target and replace
+    target_color = "fill:#ffe4c8"
+    replacement = "fill:none"
+
+    for pdf_file in pdf_files:
+        pdf_path = os.path.join(input_directory, pdf_file)
+        svg_path = os.path.join(output_directory, os.path.splitext(pdf_file)[0] + '.svg')
+
+        if not os.path.exists(svg_path) or os.path.getmtime(pdf_path) > os.path.getmtime(svg_path):
+            print(f"Converting: {pdf_file}")
+            subprocess.run(['pdf2svg', pdf_path, svg_path], check=True)
+            subprocess.run(['svgo', svg_path, '--precision=2'], check=True)
+
+            try:
+                # 1. Read the SVG content
+                with open(svg_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+
+                # Flag to track if we need to save the file
+                modified = False
+
+                # 2. Check and remove background color
+                if target_color in content:
+                    print(f"\033[2;37m...  -> Removing background color from {svg_path}\033[0m")
+                    content = content.replace(target_color, replacement)
+                    modified = True
+
+                # 3. Check and add description
+                if desc_content not in content:
+                    print(f"\033[2;37m...  -> Adding description to {svg_path}\033[0m")
+                    content = re.sub(r'(<svg[^>]*>)', r'\1' + desc_content, content, count=1)
+                    modified = True
+
+                # 4. Write back ONLY if changes were made
+                if modified:
+                    with open(svg_path, 'w', encoding='utf-8') as f:
+                        f.write(content)
+                else:
+                    print(f"  -> File {svg_path} already formatted correctly.")
+
+            except Exception as e:
+                print(f"Error processing {svg_path}: {e}")
+
+
+
+import os
+import re
+import xml.etree.ElementTree as ET
+
+def get_svg_dimensions(svg_path):
+    """Parses an SVG file and returns its width and height."""
+    try:
+        ET.register_namespace("", "http://www.w3.org/2000/svg")
+        tree = ET.parse(svg_path)
+        root = tree.getroot()
+
+        # Check viewBox first for the aspect ratio
+        viewbox = root.get('viewBox')
+        if viewbox:
+            parts = viewbox.split()
+            if len(parts) == 4:
+                return float(parts[2]), float(parts[3])
+
+        # Fallback to width and height attributes
+        width_attr = root.get('width')
+        height_attr = root.get('height')
+
+        if width_attr and height_attr:
+            w = re.sub(r'[^\d.]', '', width_attr)
+            h = re.sub(r'[^\d.]', '', height_attr)
+            return float(w), float(h)
+
+        return None, None
+    except Exception as e:
+        print(f"\033[1;31m\u2718\033[0m Error reading {svg_path}: {e}")
+        return None, None
+
+def add_size_to_img(html_file_path, site_root_dir):
+    """Reads HTML, finds lazy images, fetches SVG sizes, and updates HTML using Regex."""
+    print(f"\033[2;37m... Adding sizes to <img>\033[0m")
+
+    if not os.path.exists(html_file_path):
+        print(f"\033[1;31m\u2718\033[0m Error: Could not find HTML file at '{html_file_path}'")
+        return
+
+    with open(html_file_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+
+    images_updated = 0
+
+    # Regex to match the entire <img> tag and capture its inner attributes string
+    img_pattern = re.compile(r'<img\s+([^>]+)>', re.IGNORECASE)
+
+    def process_img(match):
+        nonlocal images_updated
+        original_tag = match.group(0)
+        attrs_str = match.group(1)
+
+        # Extract src and check for loading="lazy"
+        src_match = re.search(r'src=[\'"]([^\'"]+\.svg)[\'"]', attrs_str, re.IGNORECASE)
+        is_lazy = re.search(r'loading=[\'"]lazy[\'"]', attrs_str, re.IGNORECASE)
+
+        # Check if width or height are already present in the tag
+        has_width = re.search(r'\bwidth=', attrs_str, re.IGNORECASE)
+        has_height = re.search(r'\bheight=', attrs_str, re.IGNORECASE)
+
+        if src_match and is_lazy and (not has_width or not has_height):
+            src = src_match.group(1)
+
+            # Strip leading slash so os.path.join treats it as relative to site_root_dir
+            clean_src = src.lstrip('/')
+            svg_absolute_path = os.path.join(site_root_dir, clean_src)
+
+            if os.path.exists(svg_absolute_path):
+                w, h = get_svg_dimensions(svg_absolute_path)
+
+                if w and h:
+                    images_updated += 1
+
+                    # Reconstruct the tag with the new dimensions.
+                    # We check if it ends with a self-closing slash to maintain formatting.
+                    if attrs_str.strip().endswith('/'):
+                        clean_attrs = attrs_str.strip()[:-1].rstrip()
+                        new_attrs = f'{clean_attrs} width="{round(w)}" height="{round(h)}" /'
+                    else:
+                        clean_attrs = attrs_str.rstrip()
+                        new_attrs = f'{clean_attrs} width="{round(w)}" height="{round(h)}"'
+
+                    return f'<img {new_attrs}>'
+            else:
+                print(f"\033[1;31m\u2718\033[0m SVG not found locally: {svg_absolute_path}")
+
+        # If conditions aren't met, return the tag exactly as it was
+        return original_tag
+
+    # re.sub can take a function to process every match dynamically
+    new_html_content = img_pattern.sub(process_img, html_content)
+
+    if images_updated > 0:
+        # Replicate BeautifulSoup's minimal formatter behavior for viewbox
+        new_html_content = new_html_content.replace('viewbox=', 'viewBox=')
+
+        with open(html_file_path, 'w', encoding='utf-8') as f:
+            f.write(new_html_content)
+
+        print(f"\033[1;32m\u2714\033[0m Successfully updated {images_updated} images.")
+    else:
+        print("\n \033[1;32m\u2714\033[0m No images needed updating.")
+
+
+#sep#######################################################
+#sep Page elements ########################################
+#sep#######################################################
+
+def to_roman(n):
+        return {1:'I', 2:'II', 3:'III', 4:'IV', 5:'V', 6:'VI'}.get(int(n), str(n))
+
+def create_toc(toc_dic):
+    # 1. Helpers & Sorting
+    def sort_key(x):
+        if x == 'intro': return [-1]
+        return [int(k) for k in x.split('_')]
+
+    keys = sorted(toc_dic.keys(), key=sort_key)
+
+    #  2. Build Data Tree
+    tree = []
+    # (We don't need p_ids or c_ids lists anymore)
+
+    for k in keys:
+        content_levels = k.split('_')
+        item = toc_dic[k]
+
+        if len(content_levels) == 1: # Part
+            tree.append({'id': content_levels[0], 'title': item['title'], 'chaps': []})
+        elif len(content_levels) == 2: # Chapter
+            if tree: # Safety check
+                tree[-1]['chaps'].append({'id': content_levels[1], 'title': item['title'], 'sects': []})
+        elif len(content_levels) == 3: # Section
+            if tree and tree[-1]['chaps']:
+                tree[-1]['chaps'][-1]['sects'].append({'id': content_levels[2], 'title': item['title']})
+
+    # 3. Generate HTML (no JS here)
+    html = ['<div id="toc_container"><ul style="list-style:none; padding:0; padding-left: 5px;">']
+
+    # NEW: Flag to track if we've hit the Outro
+    outro_reached = False
+
+    for p in tree:
+        if p['id'] == 'intro':
+            html.append(f'''\n<li> <a href="#intro_wrap" id="link_intro" class="toc-link toc-part-link" onclick="toggleView('intro')"><b>{p['title']}</b> </a> </li>\n''')
+            continue
+
+        html.append(f'''\n<li> <a href="#part_{p['id']}_header" id="link_part_{p['id']}" class="toc-link toc-part-link" onclick="toggleView('part_{p['id']}')"><b>Part {to_roman(p['id'])}. {p['title']}</b> </a> <ul id="part_{p['id']}_toc" class="toc-sublist toc-part-sublist">\n''')
+
+        for c in p['chaps']:
+            if c['title'].strip().lower() == 'outro':
+                outro_reached = True
+
+            if outro_reached:
+                chapter_display = f"{c['title']}"
+            else:
+                chapter_display = f"{c['id']}. {c['title']}"
+
+            html.append(f'''\n\t<li> <a href="#part_{p['id']}_ch{c['id']}_header" id="link_ch_{c['id']}" class="toc-link toc-chapter-link" onclick="toggleView('part_{p['id']}_ch{c['id']}')"><b>{chapter_display} </b> </a> <ul id="part_{p['id']}_ch_{c['id']}_toc" class="toc-sublist toc-chapter-sublist">\n''')
+
+            for s in c['sects']:
+                html.append(f'''<li> <a href="#part_{p['id']}_ch{c['id']}_{s['id']}_header" class="toc-link"> {c['id']}.{s['id']} {s['title']} </a> </li>\n''' )
+            html.append('</ul></li>')
+        html.append('</ul></li>')
+
+    html.append('</ul></div>\n\t')
+
+    return "".join(html)
+
+###
+def create_terms(file_path):
+    # 1. Read the whole file as a single string
+    with open(file_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    output_lines = []
+
+    # 2. Find all occurrences of \term{label}{term}{synonyms}{definition}
+    # re.DOTALL allows the '.' to match newlines, handling multi-line definitions
+    pattern = r'\\term\{(.+?)\}\{(.+?)\}\{(.+?)\}\{(.+?)\}'
+
+    for match in re.finditer(pattern, content, re.DOTALL):
+        label, term, synonyms, desc = match.groups()
+
+        # 3. Clean and Format the description
+        desc = desc.strip()
+        desc = re.sub(r'\$(.*?)\$', r'\(\g<1>\)', desc).replace('<', '\\lt ').replace('>', '\\gt ')
+
+        new_line = f'           <div id="{label}"> <dt><b>{term}:</b>  </dt> <dd> {desc} </dd></div>\n'
+        output_lines.append(new_line)
+
+    return output_lines
+
+
+###
+def find_matching_brace(text, start_index):
+    brace_count = 0
+    for i in range(start_index, len(text)):
+        if text[i] == '{':
+            brace_count += 1
+        elif text[i] == '}':
+            brace_count -= 1
+            if brace_count == 0:
+                return i
+    return -1
+
+###
+def find_matching_brace(text, start_index):
+    """
+    Finds the index of the closing brace '}' corresponding to the
+    opening brace '{' found at start_index.
+    """
+    if text[start_index] != '{':
+        return -1
+
+    brace_count = 0
+
+    for i in range(start_index, len(text)):
+        char = text[i]
+
+        if char == '{':
+            brace_count += 1
+        elif char == '}':
+            brace_count -= 1
+
+        if brace_count == 0:
+            return i
+
+    return -1
+
+
+def create_dictionary_of_math_terms(file_path):
+
+    if not os.path.exists(file_path):
+        print(f"Error: File not found: {file_path}")
+        return []
+
+    with open(file_path, "r", encoding="utf-8") as file:
+        file_content = file.read()
+
+    file_content = re.sub(r'%.*', '', file_content)
+
+    entries = []
+    term_map = {}
+
+    command_iterator = re.finditer(r"\\variableterm", file_content)
+
+    for match in command_iterator:
+        current_index = match.start()
+
+        # 1. Extract Command (ID)
+        start_brace = file_content.find("{", current_index)
+        if start_brace == -1: continue
+        end_brace = find_matching_brace(file_content, start_brace)
+        if end_brace == -1: continue
+
+        raw_command = file_content[start_brace + 1 : end_brace].strip()
+        current_index = end_brace + 1
+
+        # 2. Extract Term
+        start_brace = file_content.find("{", current_index)
+        if start_brace == -1: continue
+        end_brace = find_matching_brace(file_content, start_brace)
+        if end_brace == -1: continue
+
+        term_content = file_content[start_brace + 1 : end_brace].strip()
+        current_index = end_brace + 1
+
+        # 3. Extract Definition
+        start_brace = file_content.find("{", current_index)
+        if start_brace == -1: continue
+        end_brace = find_matching_brace(file_content, start_brace)
+        if end_brace == -1: continue
+
+        definition_content = file_content[start_brace + 1 : end_brace].strip()
+
+        # --- UPDATED LOGIC: Forward Dependency Tracking & Substitution ---
+
+        sorted_known_commands = sorted(term_map.keys(), key=len, reverse=True)
+
+        for known_cmd in sorted_known_commands:
+            # Check if an older command exists in the current term or definition
+            if known_cmd in definition_content:
+
+                # 1. Find the older command in the entries list and update its "used_in" list
+                for entry in entries:
+                    if entry["raw_command"] == known_cmd:
+                        if r"\TVec" in raw_command and raw_command not in entry["used_in"]:
+                            entry["used_in"].append(raw_command)
+                        break # Found and updated the older entry, break the inner loop
+
+                definition_content = definition_content.replace(known_cmd, term_map[known_cmd])
+
+            # 2. Substitute the raw command with its evaluated mathematical term
+            if known_cmd in term_content:
+                term_content = term_content.replace(known_cmd, term_map[known_cmd])
+
+
+        # Store the fully evaluated term so future variables can use it
+        term_map[raw_command] = term_content
+
+        # Append to list
+        entries.append({
+            "raw_command": raw_command,
+            "term_content": term_content,
+            "definition_content": definition_content,
+            "used_in": [] # Starts empty, will be updated by future terms if referenced
+        })
+
+    for entry in entries:
+        if len(entry["used_in"]) > 1:
+            print(entry["raw_command"], " used in more than one terms definitions: i.e used in ", entry["used_in"])
+
+    return entries
+
+def create_html_terms_element(entries):
+    """
+    Takes a list of dictionaries and returns the formatted HTML string.
+    """
+    if not entries:
+        return ""
+
+    html_string = '          <dl id="math-glossary" style="display: none;">\n'
+
+    for entry in entries:
+        raw_command = entry['raw_command']
+        term_content = entry['term_content']
+        definition_content = entry['definition_content']
+
+        # Process ID
+        label_id = "var" + raw_command.replace("\\", "")
+
+        # Process Term Display
+        display_term = f"\\( ({term_content}) \\)"
+
+        # Process Definition content (Latex replacements)
+        definition_content = definition_content.replace('<', '\\lt ').replace('>', '\\gt ')
+        definition_content = re.sub(r'\$(.*?)\$', r'\\(\1\\)', definition_content)
+
+        html_line = (
+            f'          <div>'
+            f'  <dt data-term="{label_id}">'
+            f'{display_term} <b>:</b> '
+            f'</dt>'
+            f'  <dd id="{label_id}">'
+            f'{definition_content}'
+            f'</dd>'
+            f'</div>\n'
+        )
+
+        html_string += html_line
+
+    html_string += '</dl>'
+    return html_string
+
+def find_matching_brace(text, start_index):
+    open_braces = 0
+    for i in range(start_index, len(text)):
+        if text[i] == '{':
+            open_braces += 1
+        elif text[i] == '}':
+            open_braces -= 1
+            if open_braces == 0:
+                return i
+    return -1
+
+# Example Usage:
+# output = parse_term_commands("Term_commands.tex")
+# print(output)
+
+###
+def Eq_env_to_HTML(content, terms_data):
+
+    # 1. Sort terms by length of raw_command (descending).
+    sorted_terms = sorted(terms_data, key=lambda x: len(x['raw_command']), reverse=True)
+
+    def process_equation_match(match):
+        math_env = match.group(0)
+
+        # --- A. Extract Label ---
+        label_match = re.search(r'\\label\{(?P<label>.*\})', math_env)
+        if label_match:
+            raw_label = label_match.group("label")[:-1]
+            clean_id = raw_label.replace(" ", "_").replace(":", "").replace("'", "_")
+            id_attr = f' id="{clean_id}"'
+        else:
+            id_attr = ''
+
+        # --- B. Clean Environment ---
+        math_body = re.sub(r'\\label\{.*?\}', '', math_env, flags=re.DOTALL)
+
+        math_body = re.sub(
+            r'(\\begin\{equation\})\s*(.*?)\s*(\\end\{equation\})',
+            lambda m: f"{m.group(1)}\n{re.sub(r'(?<!\\\\)\n', ' ', m.group(2))}\n{m.group(3)}",
+            math_body,
+            flags=re.DOTALL
+        )
+
+        # --- C. Process Terms ---
+        found_data_ids = set() # Changed to a set to prevent duplicate IDs
+
+        for term in sorted_terms:
+            raw_cmd = term['raw_command']
+            replacement = term['term_content']
+            used_in = term.get('used_in', []) # Safely get the list
+
+            cmd_pattern = re.compile(re.escape(raw_cmd) + r'(?![a-zA-Z])')
+
+            if cmd_pattern.search(math_body):
+
+                # Check if it's used exactly once
+                if len(used_in) == 1:
+                    # Note: Assuming 'used_in' contains the raw_command of the parent.
+                    # If it already contains the exact ID string, just use: data_id = used_in[0]
+                    parent_cmd = used_in[0]
+                    data_id = "var" + parent_cmd.replace("\\", "")
+                else:
+                    data_id = "var" + raw_cmd.replace("\\", "")
+
+                found_data_ids.add(data_id)
+                math_body = cmd_pattern.sub(lambda m: replacement, math_body)
+
+        # --- D. Construct HTML ---
+        data_terms_attr = ""
+        if found_data_ids:
+            # Join the set into a space-separated string
+            data_terms_attr = f' data-terms="{" ".join(found_data_ids)}"'
+
+        return f'<div class="math"{id_attr}{data_terms_attr}>\n{math_body}\n</div>'
+
+    pattern = r'(?<!<div class="math">\n)\\begin{equation}.*?\\end{equation}'
+
+    return re.sub(pattern, process_equation_match, content, flags=re.DOTALL)
+
+
+###
+def inline_math_replacement(content, terms_data):
+
+    # 1. Sort terms by length of raw_command (descending)
+    sorted_terms = sorted(terms_data, key=lambda x: len(x['raw_command']), reverse=True)
+
+    def process_inline_match(match):
+        # Extract the full match (e.g., "\( \force \)")
+        full_match = match.group(0)
+
+        # Extract the inner content (e.g., " \force ")
+        # We use group(1) from the regex below
+        math_body = match.group(1)
+
+        # 2. Iterate through terms and replace in this specific block
+        for term in sorted_terms:
+            raw_cmd = term['raw_command']
+            replacement = term['term_content']
+
+            # Regex: Match command + lookahead to ensure it ends the word
+            cmd_pattern = re.compile(re.escape(raw_cmd) + r'(?![a-zA-Z])')
+
+            if cmd_pattern.search(math_body):
+                # Use lambda for replacement to avoid 'bad escape' errors
+                math_body = cmd_pattern.sub(lambda m: replacement, math_body)
+
+        # Reconstruct the inline math string
+        return f"\\({math_body}\\)"
+
+    # Regex to find \( ... \)
+    # \\\( matches literal \(
+    # (.*?) matches content lazily (capturing group 1)
+    # \\\) matches literal \)
+    pattern = r'\\\((.*?)\\\)'
+
+    # re.DOTALL allows the dot (.) to match newlines, in case inline math spans lines
+    return re.sub(pattern, process_inline_match, content, flags=re.DOTALL)
+
+###
+def replace_refs(input_string):
+    # This pattern matches \eqref{} and captures the content inside the brackets
+    pattern_ref_eq = r'\\eqref\{(.*?)\}'
+    pattern_ref_fig = r'\\ref\{(.*?fig.*?)\}'
+    pattern_ref_toc = r'\\ref\{(.*?)\}'
+
+    # This function will be used to replace each match
+    def replacer_ref_eq(match):
+        id = match.group(1).replace(" ", "_").replace(":","").replace("'","_")
+        eq_number =  (find_key_from_label(eq_dict, id) or "").replace("_", ".")
+        # Replace with a span element that shows a div with the matched id on hover
+        #todo need to show variable term defs on RHS
+        return f'<span class="ref_eq" onmouseover="copyContent(\'{id}\',\'equation_hover\',this); " onmouseout="deleteContent(\'equation_hover\');">({eq_number})</span>'
+    def replacer_ref_fig(match):
+        id = match.group(1).replace(" ", "_").replace(":","").replace("'","_")
+        fig_num =  (find_key_from_label(fig_dict, id) or "").replace("_", ".")
+        # Replace with a span element that shows a div with the matched id on hover
+        return f'<span class="ref_fig" onmouseover="copyContent(\'{id}\',\'fig_hover\',this);" onmouseout="deleteContent(\'fig_hover\');">{fig_num}</span>'
+    def replacer_ref_toc(match):
+        id = match.group(1).replace(" ", "_").replace(":","").replace("'","_")
+        toc_num = (find_key_from_label(toc_dict, id) or "").replace("_", ".")
+
+        if '.' not in toc_num: # part
+            return f'<a href="#part_{toc_num}_header" class="ref_toc" >{toc_num}</a>'
+        else:
+            # for "Chapter" (e.g., "1.2.3" -> "2.3")
+            toc_num_sep = toc_num.split(".")
+            display_num = ".".join(toc_num_sep[1:])
+            href = display_num.replace(".", "_")
+            part_num = ".".join(toc_num_sep[:1])
+            return f'<a href="#part_{part_num}_ch{href}_header" class="ref_toc" >{display_num}</a>'
+               #todo need way for click to load chapter if ref is to a hidden chapter
+               #todo <a href="#part_{part_num}_ch{c['id']}_wrap" id="link_ch_{c['id']}" class="toc-link" onclick="toggleView('ch', '{c['id']}')">
+
+    # Use re.sub to replace each match in the input string
+    output_string = re.sub(pattern_ref_eq , replacer_ref_eq, input_string)
+    output_string = re.sub(pattern_ref_fig, replacer_ref_fig, output_string)
+    output_string = re.sub(pattern_ref_toc, replacer_ref_toc, output_string) # must be after fig replacer
+
+
+    return output_string
+
+###
+def process_bib_and_cites(bib_path, tex_path):
+    # 1. Load Files
+    with open(bib_path) as f: bib_raw = f.read()
+    with open(tex_path) as f: tex_raw = f.read()
+
+    # 2. Parse BibTeX (Unchanged)
+    db = {}
+    for chunk in bib_raw.split('@')[1:]:
+        m_head = re.match(r'(\w+)\s*\{\s*([^,]+),', chunk)
+        if not m_head: continue
+        fields = {k.lower(): (v1 or v2 or v3).strip()
+                  for k, v1, v2, v3 in re.findall(r'(\w+)\s*=\s*(?:\{(.+?)\}|"(.+?)"|(\d+))', chunk, re.DOTALL)}
+        db[m_head.group(2).strip()] = {'type': m_head.group(1).lower(), 'lbl': m_head.group(2).strip(), **fields}
+
+    # 3. Process LaTeX (Updated for Bi-directional Linking)
+    c_map, counter = {}, 1
+
+    def sub_cite(m):
+        nonlocal counter
+        links = []
+        for k in [x.strip() for x in m.group(1).split(',')]:
+            if k in db:
+                if k not in c_map:
+                    c_map[k] = counter
+                    db[k]['cid'] = counter
+                    counter += 1
+
+                # UPDATE: Added id='cite-...' for the back-link
+                # We point href to '#ref-...' which will be the ID in the bibliography
+                links.append(f'<a href="#ref-{k}" id="cite-{k}" class="citation-link">{c_map[k]}</a>')
+            else:
+                links.append(f"{k}?")
+        return f"[{', '.join(links)}]"
+
+    with open(tex_path, 'w') as f: f.write(re.sub(r'\\cite\{(.+?)\}', sub_cite, tex_raw))
+
+    # 4. Generate HTML
+    html = ['<section id="references" aria-labelledby="refs-title">\n<h3 id="refs-title">References</h3>\n<ol class="bibliography-list">\n']
+
+    sorted_entries = sorted([x for x in db.values() if 'cid' in x], key=lambda x: x['cid'])
+
+    for e in sorted_entries:
+        # Clean Authors (Remove {} braces)
+        clean_author = e.get('author', 'Unknown').replace('{', '').replace('}', '')
+        aus = [n.split(',')[1].strip() + " " + n.split(',')[0].strip() if ',' in n else n
+               for n in clean_author.split(' and ')]
+        auth = ", ".join(aus).replace('others', 'et al.')
+
+        # Format Date
+        d_str = e.get('year', '')
+        if 'date' in e:
+            dt = datetime.strptime(e['date'], '%Y-%m-%d')
+            d_str = f"{dt.strftime('%b.')} {dt.day}, {dt.year}"
+
+        s = f'<li id="ref-{e["lbl"]}">'
+
+        title = e.get('title', '')
+
+        if e['type'] == 'article':
+            # Articles: Quotes, no Italics
+            # We remove <cite> here to prevent italics
+            s += f'{auth}. “{title}”.'
+        else:
+            # Books, Misc, Online: Italics, no Quotes
+            # We use <em> (or <cite>) to apply italics
+            s += f'{auth}. <em>{title}</em>.'
+        # -----------------------------------------
+
+        if e['type'] == 'article':
+            vol = f"{e.get('volume','')}" + (f".{e['number']}" if 'number' in e else "")
+            s += f" In: <em>{e.get('journal','')}</em> {vol} ({d_str})"
+        else:
+            pub = [x for x in [e.get('publisher'), e.get('organization'), d_str] if x]
+            s += f" {', '.join(pub)}."
+
+            if 'url' in e:
+                s += f' <span  style="font-family: monospace; font-size: 0.7rem;">URL:</span> <a href="{e["url"]}" class="bib-url" target="_blank" rel="noopener">{e["url"]}</a>'
+                if 'urldate' in e: s += f" (visited on {e['urldate']})."
+
+        if 'pages' in e: s += f", pp. {e['pages'].replace('--', '–')}."
+
+        s += f' <a href="#cite-{e["lbl"]}" aria-label="Back to citation" style="text-decoration:none">↩</a>'
+        s += "</li>\n"
+        html.append(s)
+
+    html.append("</ol>\n</section>\n")
+    return "".join(html)
+
+
+
+###
+def create_dictionary_of_content(filepath):
+    structure_dict = {}
+    counters = {
+        "part": 0,
+        "chapter": 0,
+        "section": 0,
+        "subsection": 0,
+        "subsubsection": 0
+    }
+
+    with open(filepath, 'r', encoding='utf-8') as f:
+        for line in f:
+            match = re.match(r"\\(part|chapter|section|subsection|subsubsection)(?:\[([^\]]*)\])?\s*\{([^}]+)\}\s*(?:\\label\{([^}]+)\})?", line)
+
+            if match:
+                level = match.group(1)
+                short_title = match.group(2).strip() if match.group(2) else None
+                title = match.group(3).strip()
+                label = match.group(4).replace(" ", "_").replace(":","").replace("'","_") if match.group(4) else None
+
+                # Replace title with short_title if short_title exists
+                if short_title:
+                    title = short_title
+
+                if level == "part":
+                    if title.lower() in ['intro', 'introduction']:
+                        structure_dict["intro"] = {"title": "Introduction", "label": label}
+                    else:
+                        counters["part"] += 1
+                        structure_dict[f"{counters['part']}"] = {"title": title, "label": label}
+
+                elif level == "chapter":
+                    counters["chapter"] += 1
+                    counters["section"] = 0
+                    counters["subsection"] = 0
+                    counters["subsubsection"] = 0
+                    structure_dict[f"{counters['part']}_{counters['chapter']}"] = {"title": title, "label": label}
+
+                elif level == "section":
+                    counters["section"] += 1
+                    counters["subsection"] = 0
+                    counters["subsubsection"] = 0
+                    structure_dict[f"{counters['part']}_{counters['chapter']}_{counters['section']}"] = {"title": title, "label": label}
+
+                elif level == "subsection":
+                    counters["subsection"] += 1
+                    counters["subsubsection"] = 0
+                    structure_dict[f"{counters['part']}_{counters['chapter']}_{counters['section']}_{counters['subsection']}"] = {"title": title, "label": label}
+
+                elif level == "subsubsection":
+                    counters["subsubsection"] += 1
+                    structure_dict[f"{counters['part']}_{counters['chapter']}_{counters['section']}_{counters['subsection']}_{counters['subsubsection']}"] = {"title": title, "label": label}
+
+    return structure_dict
+
+def create_dictionary_of_figures(latex_file):
+    with open(latex_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    figure_data = {}
+    chapter_number = 0
+    figure_number = 0
+
+    chapters = re.split(r'\\chapter\{', content)[1:]
+
+    for chapter_content in chapters:
+        chapter_number += 1
+        figure_number = 0
+
+        figure_matches = re.findall(r'\\begin\{figure\}(.*?)\\end\{figure\}', chapter_content, re.DOTALL)
+
+        for figure_match in figure_matches:
+            figure_number += 1
+
+            # Remove subfigure environments from figure_match
+            temp_figure_match = re.sub(r'\\begin\{subfigure\}.*?\\end\{subfigure\}', '', figure_match, flags=re.DOTALL)
+
+            # Now search for caption and label in temp_figure_match
+            figure_caption = ""
+            figure_title = ""
+            figure_label = ""
+
+            # Function to find matching bracket
+            def find_matching_bracket(text, open_bracket_pos):
+                stack = []
+                for i in range(open_bracket_pos, len(text)):
+                    if text[i] == '{':
+                        stack.append('{')
+                    elif text[i] == '}':
+                        if stack:
+                            stack.pop()
+                        if not stack:
+                            return i
+                return -1
+
+            # Search for the main figure caption
+            caption_match = re.search(r'\\caption\s*\{', temp_figure_match)
+            if caption_match:
+                open_bracket_pos = caption_match.end() - 1
+                close_bracket_pos = find_matching_bracket(temp_figure_match, open_bracket_pos)
+                if close_bracket_pos != -1:
+                    figure_caption = temp_figure_match[open_bracket_pos + 1:close_bracket_pos].strip()
+
+                    # Extract the figure title from the caption
+                    title_match = re.search(r'\\textbf\{([^}]*?)\}', figure_caption)
+                    if title_match:
+                        figure_title = title_match.group(1).strip()
+
+            # Find label in temp_figure_match
+            label_match = re.search(r'\\label\{([^}]*?)\}', temp_figure_match)
+            if label_match:
+                figure_label = label_match.group(1).replace(" ", "_").replace(":","").replace("'","_")
+
+            figure_id = f"{chapter_number}_{figure_number}"
+            figure_data[figure_id] = {
+                "title": figure_title,
+                "label": figure_label,
+                "caption": figure_caption
+            }
+
+            # Now process subfigures
+            subfigure_matches = re.findall(r'\\begin\{subfigure\}(.*?)\\end\{subfigure\}', figure_match, re.DOTALL)
+
+            for i, subfigure_match in enumerate(subfigure_matches):
+                subfigure_letter = chr(ord('a') + i)
+
+                # Find subfigure caption and label
+                subfigure_title = ""
+                subfigure_label = ""
+                subfigure_caption = ""
+
+                subfigure_caption_match = re.search(r'\\caption\s*\{', subfigure_match)
+                if subfigure_caption_match:
+                    open_bracket_pos = subfigure_caption_match.end() - 1
+                    close_bracket_pos = find_matching_bracket(subfigure_match, open_bracket_pos)
+                    if close_bracket_pos != -1:
+                        subfigure_caption = subfigure_match[open_bracket_pos + 1:close_bracket_pos].strip()
+
+                        # Extract the subfigure title from the caption
+                        subfigure_title_match = re.search(r'\\textbf\{([^}]*?)\}', subfigure_caption)
+                        if subfigure_title_match:
+                            subfigure_title = subfigure_title_match.group(1).strip()
+
+                # Find label in subfigure_match
+                label_match = re.search(r'\\label\{([^}]*?)\}', subfigure_match)
+                if label_match:
+                    subfigure_label = label_match.group(1).replace(" ", "_").replace(":","").replace("'","_")
+
+                subfigure_id = f"{chapter_number}_{figure_number}_{subfigure_letter}"
+                figure_data[subfigure_id] = {
+                    "title": subfigure_title,
+                    "label": subfigure_label,
+                    "caption": subfigure_caption
+                }
+
+    return figure_data
+
+
+
+
+###
+def create_dictionary_of_equations(latex_file):
+    with open(latex_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    equation_data = {}
+    chapter_number = 0
+    equation_number = 0
+    tot_equations = 0
+
+    chapters = re.split(r'\\chapter{', content)[1:]
+
+    for chapter_content in chapters:
+        chapter_number += 1
+        equation_number = 0
+
+        equation_matches = re.findall(r'\\begin{equation}(.*?)\\end{equation}', chapter_content, re.DOTALL)
+
+        tot_equations = tot_equations + len(equation_matches)
+
+
+        for equation_match in equation_matches:
+            equation_number += 1
+
+            # Find equation label
+            equation_label = ""
+            label_match = re.search(r'\\label{([^}]*?)}', equation_match)
+            if label_match:
+                equation_label = label_match.group(1).replace(" ", "_").replace(":","").replace("'","_")
+
+            equation_id = f"{chapter_number}_{equation_number}"
+            equation_data[equation_id] = {"label": equation_label}  # Store as dictionary
+
+    return equation_data
+
+###
+def find_key_from_label(data_dict, target_label):
+    for key, value in data_dict.items():
+        if value['label'] == target_label:
+            return key
+    print(f"\033[1;31m\u2718\033[0m label: ", target_label, " does not have a key" )
+    return None
+
+###
+def find_label_from_key(data_dict, target_key):
+    if target_key in data_dict:
+        return data_dict[target_key]['label']
+    else:
+        print(f"\033[1;31m\u2718\033[0m Key: ", target_key, " does not have a label" )
+        return None
+
+###
+def find_caption_from_key(data_dict, target_key):
+    if target_key in data_dict:
+        return data_dict[target_key]['caption']
+    else:
+        print(f"\033[1;31m\u2718\033[0m Key: ", target_key, " does not have a caption" )
+        return None
+
+###
+def check_duplicate_labels(data_dict):
+    label_to_keys = {}  # Dictionary to store labels and their associated keys
+
+    for key, value in data_dict.items():
+        label = value.get("label")
+        if label:  # Check if the label exists
+            if label in label_to_keys:
+                label_to_keys[label].append(key)
+            else:
+                label_to_keys[label] = [key]
+
+    # Check for duplicates and print messages
+    for label, keys in label_to_keys.items():
+        if len(keys) > 1:
+            print(f"Duplicate label found: '{label}' in {keys}")
+
+###
+def add_latex_definitions(input_file, output_file):
+    try:
+        with open(input_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        return "Error: Input file not found."
+
+    # 1. Remove geometry and headwidth settings
+    content = re.sub(r'\\newgeometry\{.*?\}', '', content)
+    content = re.sub(r'\\setlength\{\\headwidth\}\{\\textwidth\}', '', content)
+    content = re.sub(r'\\restoregeometry', '', content)
+
+    # 2. Remove multicols environment
+    content = re.sub(r'\\begin\{multicols\}\{\d+\}', '', content)
+    content = re.sub(r'\\end\{multicols\}', '', content)
+
+    # 3. Swap \section* for \chapter and \subsection* for \textbf
+    content = re.sub(r'\\section\*\{(.*?)\}', r'\\chapter{\1}', content)
+    content = re.sub(r'\\Huge', r'', content)
+    content = re.sub(r'\\centering', r'', content)
+    content = re.sub(r'\\subsection\*', r'\\h4', content)
+
+    # 4. Transform \term{id}{Title}{aliases}{Description}
+    # Pattern explanation: matches \term, then 4 sets of balanced curly braces
+    # Using [^{}]* for simple cases or a non-greedy dot with DOTALL
+    term_pattern = r'\\term\{(?P<id>.*?)\}\{(?P<title>.*?)\}\{(?P<aliases>.*?)\}\{(?P<desc>.*?)\}'
+
+    def term_replacer(match):
+        title = match.group('title').strip()
+        desc = match.group('desc').strip()
+        # Formatting as "Title: Description" followed by a newline
+        return f"\\noindent \\textbf{{{title}:}} {desc}\n\\newline"
+
+    content = re.sub(term_pattern, term_replacer, content, flags=re.DOTALL)
+
+    # 5. Clean up excessive whitespace/newlines left behind
+    content = re.sub(r'\n{3,}', '\n\n', content)
+
+    # Append to the output file
+    with open(output_file, 'a', encoding='utf-8') as f:
+        f.write("\n" + "="*40 + "\n") # Optional separator
+        f.write(content.strip())
+        f.write("\n")
+
+    return f"Processing complete. Content appended to {output_file}."
+
+
+#sep#######################################################
+#sep Make page ############################################
+#sep#######################################################
+###
+
+###
+def make_page(input_file, output_file, toc_file, content_file, Defs_file, Math_Terms_lines, bib_lines):
+    with open(input_file, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    with open(output_file, 'w', encoding='utf-8') as file:
+        # # Write the front matter block first
+
+        for line in lines:
+            if '[Insert TOC]' in line:
+                file.writelines(toc_file)
+            elif '[Insert Content]' in line:
+                file.writelines(content_file)
+            elif '[Insert Definitions]' in line:
+                file.writelines(Defs_file)
+            elif '[Insert Math Terms]' in line:
+                file.writelines(Math_Terms_lines)
+            elif '[Insert PDF Link]' in line:
+                file.write('<a id="hover-link" href="' + html_to_pdfs + '" style="padding-top: 5px; color: black;"><b>&#11015; PDF</b></a><br>\n')
+            elif '[Insert Topic Name]' in line:
+                file.write(Topic_Name)
+            elif '[Insert Bib]' in line:
+                for line in bib_lines:
+                    file.write(line)
+            else:
+                file.write(line)
+
+#sep#######################################################
+#sep Checks ###############################################
+#sep#######################################################
+
+def find_leftover_latex(html_file):
+    print(f"\033[2;37m... Scanning {html_file}\033[0m")
+    found, bugs = set(), 0
+    stop_marker = None
+
+    with open(html_file, 'r', encoding='utf-8') as f, open("bugs/latex_still_in_html.txt", 'w', encoding='utf-8') as out:
+        for i, line in enumerate(f, 1):
+            # check for start of block if not in one
+            if not stop_marker:
+                if '<script' in line: stop_marker = '</script>'
+                elif '<style' in line: stop_marker = '</style>'
+                elif r'\begin{equation}' in line: stop_marker = r'\end{equation}'
+
+            # If we are inside a block, check if it ends here
+            if stop_marker:
+                if stop_marker in line: stop_marker = None
+                continue
+
+            # 2. Clean inline math to avoid false positives
+            clean = re.sub(r'\\\(.*?\\\)', '', line)
+
+            # 3. Find LaTeX commands, Matches \cmd and optional {arg}.
+            matches = re.findall(r"\\([a-zA-Z]+)(\{[^}]*\})?", clean)
+            curr_bugs = [f"\\{c}{a}" if (c in ['begin','end'] and a) else f"\\{c}" for c, a in matches]
+
+            # 4. Find Stray Braces (by removing the valid commands we just found)
+            clean_no_cmds = re.sub(r"\\([a-zA-Z]+)(\{[^}]*\})?", '', clean)
+            if any(b in clean_no_cmds for b in '{}'):
+                curr_bugs.append("STRAY_BRACES")
+
+            # 5. Log if bugs found
+            if curr_bugs:
+                bugs += 1
+                found.update(c for c in curr_bugs if c != "STRAY_BRACES")
+                out.write(f"Line {i}: {line.strip()}\n   >>> Found: {curr_bugs}\n")
+    if bugs == 0:
+        print("\033[1;32m\u2714\033[0m no leftover latex")
+    else:
+        print(f"\033[1;31m\u2718\033[0m Lines with bugs: {bugs}\nUnique commands: {sorted(found)}\nSee topics/special-relativity/bugs/latex_still_in_html.txt")
+
+###
+def check_ids_for_spaces(html_file_path):
+    try:
+        with open(html_file_path, 'r', encoding='utf-8') as f:  # Handle potential encoding issues
+            html_content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File not found at '{html_file_path}'")
+        return []
+
+    # Regular expression to find id attributes.  This is more robust than simply splitting.
+    id_pattern = re.compile(r'id\s*=\s*["\']([^"\']*)["\']')
+    matches = id_pattern.findall(html_content)
+    invalid_ids = []
+
+    if not matches:
+        print(f"no matching IDs found in '{html_file_path}'")
+        return []
+
+    for id_value in matches:
+        if " " in id_value:
+            print(f"ID with spaces found: '{id_value}'")
+            invalid_ids.append(id_value)
+    return invalid_ids
+
+### checks
+def check_html_href_links(filename):
+    with open(filename, 'r', encoding='utf-8') as f:
+        # Find href with optional whitespace around =, handles both ' and " quotes
+        urls = re.findall(r'href\s*=\s*[\'"]([^\'"]+)[\'"]', f.read())
+
+    # Filter/deduplicate - keep only http/https/www links
+    links = set(u for u in urls if u.startswith(('http://', 'https://', 'www.')))
+    print(f"\033[2;37m... Checking {len(links)} web links\033[0m")
+
+    def is_link_working(url):
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req, timeout=5):
+                return True
+        except urllib.error.URLError as e:
+            print(f"\033[1;31m\u2718\033[0m [{getattr(e, 'code', 'Connection Error')}] {url}")
+            return False
+
+    if all(is_link_working(url) for url in links):
+        print("\033[1;32m\u2714\033[0m all external links work")
+
+
+###
+from html.parser import HTMLParser
+class Checker(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.ids, self.links = set(), set()
+
+    def handle_starttag(self, tag, attrs):
+        d = dict(attrs)
+        if 'id' in d:
+            self.ids.add(d['id'])
+        if tag == 'a' and d.get('href', '').startswith('#'):
+            target = d['href'][1:]
+            if target: self.links.add(target)
+
+
+########
+import bisect
+
+def check_for_for_leftover_math_terms(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        print(f"Error: File '{file_path}' not found.")
+        return
+
+    # 1. Line Mapping
+    line_starts = [0] + [m.start() + 1 for m in re.finditer(r'\n', content)]
+    def get_line_number(char_index):
+        return bisect.bisect_right(line_starts, char_index)
+
+    # 2. Mask Comments
+    content_no_comments = list(content)
+    for match in re.finditer(r'%.*', content):
+        for i in range(match.start(), match.end()):
+            content_no_comments[i] = ' '
+    content_clean = "".join(content_no_comments)
+
+    # 3. Identify Math Zones
+    math_mask = [False] * len(content)
+
+    # A. Display Environments
+    env_list = r"equation|align|gather|multline|alignat|flalign"
+    env_pattern = re.compile(r'\\begin\{(' + env_list + r')\*?\}(.*?)\\end\{\1\*?\}', re.DOTALL)
+    for match in env_pattern.finditer(content_clean):
+        for i in range(match.start(), match.end()):
+            math_mask[i] = True
+
+    # B. Display Shorthand \[ ... \]
+    display_shorthand = re.compile(r'\\\[(.*?)\\\]', re.DOTALL)
+    for match in display_shorthand.finditer(content_clean):
+        for i in range(match.start(), match.end()):
+            math_mask[i] = True
+
+    # C. Inline Math $ ... $
+    i = 0
+    length = len(content_clean)
+    in_dollar_math = False
+    dollar_start = -1
+    while i < length:
+        char = content_clean[i]
+        if char == '\\' and i + 1 < length and content_clean[i+1] == '$':
+            i += 2
+            continue
+        if char == '$':
+            if not in_dollar_math:
+                in_dollar_math = True
+                dollar_start = i
+            else:
+                in_dollar_math = False
+                for k in range(dollar_start, i + 1):
+                    math_mask[k] = True
+        i += 1
+
+    # 4. Filter Specific Commands (Remove argument blocks)
+    #    e.g., removes \text{...} completely.
+    ignore_cmds = [
+        'text', 'label', 'color', 'mbox', 'tag', 'cite', 'ref', 'eqref',
+        'begin', 'end', 'operatorname', 'mathrm', 'mathbf'
+    ]
+
+    i = 0
+    while i < length:
+        if math_mask[i] and content_clean[i] == '\\':
+            cmd_match = re.match(r'^\\([a-zA-Z]+)', content_clean[i:])
+            if cmd_match:
+                cmd_name = cmd_match.group(1)
+                cmd_len = len(cmd_match.group(0))
+
+                # Case 1: Ignore command AND content (\text{...})
+                if cmd_name in ignore_cmds:
+                    search_pos = i + cmd_len
+                    open_brace_pos = -1
+                    while search_pos < length:
+                        if content_clean[search_pos] == '{':
+                            open_brace_pos = search_pos
+                            break
+                        elif not content_clean[search_pos].isspace():
+                            break
+                        search_pos += 1
+
+                    if open_brace_pos != -1:
+                        balance = 1
+                        close_brace_pos = -1
+                        for k in range(open_brace_pos + 1, length):
+                            if content_clean[k] == '{':
+                                balance += 1
+                            elif content_clean[k] == '}':
+                                balance -= 1
+                                if balance == 0:
+                                    close_brace_pos = k
+                                    break
+                        if close_brace_pos != -1:
+                            for k in range(i, close_brace_pos + 1):
+                                math_mask[k] = False
+                            i = close_brace_pos + 1
+                            continue
+
+                # Case 2: Generic commands (\alpha), ignore name only
+                for k in range(i, i + cmd_len):
+                    math_mask[k] = False
+                i += cmd_len
+                continue
+        i += 1
+
+    # 5. NEW: Filter Specific Custom Tokens like "{g}" or "{f}"
+    #    We scan specifically for these strings inside math zones and unmask them.
+    #    This ensures we don't pick up 'g' when it is inside {g}.
+
+    custom_ignores = ["{g}", "{f}"]
+
+    for pattern in custom_ignores:
+        # Find all occurrences of the pattern (e.g. "{g}")
+        start_search = 0
+        while True:
+            idx = content_clean.find(pattern, start_search)
+            if idx == -1:
+                break
+
+            # Unmask this specific range
+            # We assume the pattern exactly matches the characters to ignore
+            for k in range(idx, idx + len(pattern)):
+                math_mask[k] = False
+
+            start_search = idx + len(pattern)
+
+    # 6. Extract Variables
+    results = []
+    for idx, is_math in enumerate(math_mask):
+        if is_math:
+            char = content_clean[idx]
+            # Check for a-z
+            if 'a' <= char <= 'z':
+                results.append((get_line_number(idx), char))
+
+    # Print results
+    if results:
+        print("\033[1;31m\u2718\033[0m")
+        print(f"{'Line':<6} | Var")
+        print("-" * 15)
+        for ln, char in results:
+            print(f"{ln:<6} | {char}")
+    else:
+        print("\033[1;32m\u2714\033[0m no variables found.")
+
+#sep#######################################################
+#sep prerender #############################################
+#sep#######################################################
+from playwright.sync_api import sync_playwright
+
+def build_prerendered_page():
+    target_file = py_to_output_page
+
+    if not os.path.exists(target_file):
+        print(f"Error: {target_file} not found.")
+        return
+
+    # 1. Read the original file and separate frontmatter from HTML
+    with open(target_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    # Regex to find content between the first two sets of --...
+    # It looks for '--', then any text (including newlines), then '--'
+    frontmatter_pattern = re.compile(r'^(---\s*\n.*?\n---\s*\n)', re.DOTALL)
+    match = frontmatter_pattern.match(content)
+
+    frontmatter = ""
+    html_content = content
+
+    if match:
+        frontmatter = match.group(1)
+        html_content = content[len(frontmatter):]
+        print("\033[2;37m Frontmatter detected and isolated. \033[0m")
+
+    # 2. Save a temporary version of the HTML without frontmatter for Playwright
+    # This prevents the browser from moving the metadata into the <body>
+    temp_file = "temp_render.html"
+    with open(temp_file, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
+    file_url = f"file://{os.path.abspath(temp_file)}"
+
+    with sync_playwright() as p:
+        print(f"\033[2;37m ... Launching headless browser to process {target_file}\033[0m", flush=True)
+
+        with p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-gpu",
+                "--disable-crash-reporter",
+                "--disable-logging",
+                "--incognito",
+                "--disable-dev-shm-usage"
+            ]
+        ) as browser:
+
+            page = browser.new_page()
+            print("\033[2;37m ... Loading handbook and waiting for MathJax\033[0m", flush=True)
+            page.goto(file_url)
+
+            # Wait for MathJax to finish processing the equations
+            try:
+                page.wait_for_selector("mjx-container", state="attached", timeout=15000)
+                page.wait_for_timeout(2000)
+            except Exception:
+                print("Warning: Could not find rendered math.", flush=True)
+
+            print("\033[2;37m ... Cleaning up DOM and restoring animation classes\033[0m", flush=True)
+            page.evaluate("""
+                // 1. Remove unnecessary scripts (now including bibtex)
+                const scripts = document.querySelectorAll('script');
+                scripts.forEach(script => {
+                    const srcLower = script.src ? script.src.toLowerCase() : '';
+                    if (srcLower.includes('mathjax') || srcLower.includes('jquery') || srcLower.includes('moment') || srcLower.includes('bibtex')) {
+                        script.remove();
+                    }
+                    else if (!script.src && script.textContent.includes('MathJax')) {
+                        script.remove();
+                    }
+                });
+
+                // 2. Fix HTML Validation Errors (Bibtex attributes and ALL type="text/css" attributes)
+                document.querySelectorAll('span[bibtex-js-rif]').forEach(span => {
+                    span.removeAttribute('bibtex-js-rif');
+                });
+
+                document.querySelectorAll('style').forEach(style => {
+                    style.removeAttribute('type'); // Fixes validation
+
+                    // Remove MathJax right-click menu CSS entirely
+                    if (style.textContent.includes('CtxtMenu')) {
+                        style.remove();
+                    }
+                });
+
+                // 3. Remove BibTeX hidden templates
+                document.querySelectorAll('.bibtex_template').forEach(template => {
+                    template.remove();
+                });
+
+                // 4. Clean up MathJax container artifacts
+                document.querySelectorAll('mjx-container').forEach(mjx => {
+                    // Strip Context Menu attributes
+                    mjx.removeAttribute('tabindex');
+                    mjx.removeAttribute('ctxtmenu_counter');
+                    mjx.classList.remove('CtxtMenu_Attached_0');
+
+                    // Remove empty hidden MathJax initialization nodes
+                    const mathNode = mjx.querySelector('mjx-math');
+                    if (mathNode && mathNode.innerHTML === '') {
+                        const parent = mjx.parentElement;
+                        if (parent && parent.tagName === 'SPAN' && parent.style.display === 'none') {
+                            parent.remove();
+                        }
+                    }
+                });
+
+                // 5. Clean up initial load classes
+                const article = document.querySelector('article');
+                if (article) {
+                    article.classList.add('initial-load');
+                }
+
+                if (document.body) {
+                    document.body.classList.remove('start-fade');
+                    if (document.body.getAttribute('class') === '') {
+                        document.body.removeAttribute('class');
+                    }
+                }
+            """)
+
+            # Extract the fully rendered HTML
+            rendered_html = page.content()
+
+    # 3. Combine frontmatter back with the rendered HTML
+    print(f"\033[2;37m ... Overwriting {target_file} with frontmatter + rendered HTML\033[0m", flush=True)
+    with open(target_file, 'w', encoding='utf-8') as f:
+        f.write(frontmatter + rendered_html)
+
+    # 4. Cleanup temporary file
+    if os.path.exists(temp_file):
+        os.remove(temp_file)
+
+    print("\033[1;32m\u2714\033[0m " + f"Success! {target_file} has been successfully updated.", flush=True)
+
+#sep###############################################################################
+#sep###############################################################################
+#sep###############################################################################
+Latex_File = 'Latex_content.txt'
+
+with open(Latex_File, 'wb') as dst:
+    for f in [py_to_intro, py_to_main_tex, py_to_outro, py_to_resources]:
+        with open(f, 'rb') as src:
+            dst.write(src.read() + b'\n')
+
+add_latex_definitions(py_to_defs, Latex_File)
+
+
+# to do first to avoid conflicts:
+remove_comments(Latex_File)
+replace(Latex_File,r'\\chapter\{Intro\}', r'\\part{Intro}')
+replace(Latex_File,'<<', r'\\ll ')
+replace(Latex_File,'>>', r'\\gg ')
+replace(Latex_File,'<', r'\\lt ')
+replace(Latex_File,'>', r'\\gt ')
+
+check_for_for_leftover_math_terms('Latex_content.txt')
+
+# Create dictionaries
+toc_dict = create_dictionary_of_content(Latex_File)
+fig_dict = create_dictionary_of_figures(Latex_File)
+eq_dict  = create_dictionary_of_equations(Latex_File)
+var_dict = create_dictionary_of_math_terms(py_to_term_comands)
+# check for duplicate lables
+check_duplicate_labels(toc_dict)
+check_duplicate_labels(fig_dict)
+check_duplicate_labels(eq_dict)
+
+bib_lines = process_bib_and_cites(py_to_bib, Latex_File)
+
+
+# do this before replacements
+Figures_to_HTML(Latex_File)
+tikz2svg(py_to_tikz, py_to_svgs)
+
+
+# replacements
+replace(Latex_File, r'\$(.*?)\$', r'\(\1\)')
+replace(Latex_File, 'mhl', 'bbox[#fff9cf, 10px, border-radius: 10px; border: 3px solid black]')
+replace(Latex_File, r'\\begin\{mainpoints\}', '<div style="border: 3px solid black; padding-right: 20px; padding-left: 10px; background-color: #f0f0f0; border-radius: 10px;">\n\t<ol>')
+replace(Latex_File, r'\\end\{mainpoints\}', '\t</ol>\n</div>')
+replace(Latex_File, r'\\begin\{itemize\}', '<ul>')
+replace(Latex_File, r'\\end\{itemize\}', '</ul>')
+replace(Latex_File, r'\\begin\{note\}', '<blockquote class="note">')
+replace(Latex_File, r'\\end\{note\}', '</blockquote>')
+replace(Latex_File, r'\\begin\{derivation\}', '<div class="derivation">')
+replace(Latex_File, r'\\end\{derivation\}', '</div>')
+replace(Latex_File, r'\\Vec', r'\\mathbf')
+replace(Latex_File, r'\\noindent', '')
+replace(Latex_File, r'\\protect', '')
+replace(Latex_File, r'\\hyperlink\{(.*?)\}\{(.*?)\}', '<span data-target="\\g<1>">\\g<2></span>')
+replace(Latex_File, r'\\url\{(.*?)\}', '<a href="\\g<1>">\\g<1></a>')
+replace(Latex_File, r'\\textbf\{(.*?)\}', r'<b>\1</b>')
+replace(Latex_File, r'\\underline\{(.*?)\}', r'<span style="text-decoration: underline;">\1</span>')
+replace(Latex_File, r'\\h4\{(.*?)\}', r'<h4>\1</h4>')
+replace(Latex_File, r'\\textit\{(.*?)\}', '<i>\\g<1></i>')
+replace(Latex_File, r'\\scalebox{0.5}{R}', 'R')
+replace(Latex_File, r'\\AA', "Å") #'Å')
+replace(Latex_File, r'\\newline', '<br>\n')
+replace(Latex_File, r'\\mainmatter', '')
+replace(Latex_File, r'\\newpage', '')
+replace(Latex_File, r'\\frontmatter', '')
+replace(Latex_File,r'\\input\{.*?\}', '')
+replace(Latex_File,r'\\printbibliography\[.*?\]', '')
+colorbox_replace(Latex_File)
+replace(Latex_File, r"\\iffalse\s*animated_fig\{(.*?)\}\s*\\fi", f'<button class="fig-button" data-src="{html_to_anim_figs}\\1"><b>View Animated Figure</b></button>')
+replace(Latex_File,r'\\fi', '')
+replace(Latex_File, r'\\sidenote', '<p style="margin-top: 30px; margin-bottom: 15px;"><b>Side Note:</b></p>')
+replace(Latex_File,r'\\addcontentsline.*', '')
+replace(Latex_File, r'{\\color{brown!60!black} \\faBook}', '<i class="fas fa-book" style="color: #825324;"></i>')
+replace(Latex_File, r'{\\color{blue!90!black} \\faGlobe}', '<i class="fas fa-globe" style="color: #0000E6;"></i>')
+replace(Latex_File, r'\\faListOl', '<i class="fas fa-list-ol"></i>')
+replace(Latex_File, r'{\\color{red} \\faYoutube}', '<i class="fab fa-youtube" style="color: red;"></i>')
+replace(Latex_File, r'\\faWikipediaW ', '<i class="fab fa-wikipedia-w"></i>')
+replace(Latex_File, r'\\faStar', '<i class="fas fa-star"></i>')
+replace(Latex_File, r'\\href\{(.*?)\}\{(.*?)\}', '<a style="color: black" href="\\g<1>" target="_blank" rel="noopener noreferrer">\\g<2></a>')
+replace(Latex_File, r'\\nolinkurl{(.*?)\}', '<code>\\g<1></code>')
+
+replace(Latex_File, r' \\ ', ' ')
+
+
+
+
+########################################################## bib_lines = bib_to_html(py_to_bib)
+
+wrap_content(Latex_File)
+
+# Read the LaTeX file
+with open(Latex_File, 'r', encoding='utf-8') as file:
+    latex_content = file.read()
+
+# Convert to HTML headings
+main_content = latex_content
+main_content = Eq_env_to_HTML(main_content,var_dict)
+main_content = inline_math_replacement(main_content,var_dict)
+main_content = replace_refs(main_content)
+main_content += '\n'
+main_content =  re.sub(r'\\label\{.*?\}', '', main_content)
+
+# Call the function with your HTML file
+toc = create_toc(toc_dict)
+vars = create_html_terms_element(var_dict)
+defs = create_terms(py_to_defs)
+
+make_page(py_to_page_structure, py_to_output_page, toc, main_content, defs, vars, bib_lines)
+
+format_html_paragraphs(py_to_output_page)
+
+
+find_leftover_latex(py_to_output_page)
+check_ids_for_spaces(py_to_output_page)
+add_size_to_img(f"../../{topic_folder_name}.html", "../../")
+check_html_href_links(py_to_output_page)
+# check internal href links
+parser = Checker()
+with open(py_to_output_page, 'r', encoding='utf-8') as f:
+    parser.feed(f.read())
+
+broken = parser.links - parser.ids  # Set subtraction finds what's in links but NOT in ids
+print(f"\033[1;31m\u2718\033[0m Broken links: {broken}" if broken else "\033[1;32m\u2714\033[0m all internal links valid!")
+
+os.remove(Latex_File)
+
+build_prerendered_page()
