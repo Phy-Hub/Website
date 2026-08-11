@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portrait of Phyl Hubble</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            /* Page background */
+            background-color: #ffe4c8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        /* The Frame Container */
+        .frame-wrapper {
+            height: 75vh;
+            max-width: 85vw;
+            aspect-ratio: 3 / 4;
+            position: relative;
+            /* Heavy drop shadow on the light wall */
+            box-shadow: 1.5vmin 2.5vmin 4vmin rgba(0, 0, 0, 0.6);
+        }
+
+        /* ---------------------------------------------------
+           AUTHENTIC WOOD PANELS (Mitred Corners + Wood Grain)
+           --------------------------------------------------- */
+
+        .wood-panel {
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* Horizontal Wood Grain Generator (SVG Noise) */
+        .grain-h {
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.01 0.4' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"),
+                linear-gradient(to bottom, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0.3) 100%);
+        }
+
+        /* Vertical Wood Grain Generator (SVG Noise) */
+        .grain-v {
+            background-image:
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.4 0.01' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"),
+                linear-gradient(to right, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.3) 100%);
+        }
+
+        /* Individual Frame Pieces cut at 45-degree angles */
+        .panel-top {
+            top: 0; left: 0; right: 0; height: 6vmin;
+            background-color: #5a351d; /* Lightest (Top light) */
+            clip-path: polygon(0 0, 100% 0, calc(100% - 6vmin) 100%, 6vmin 100%);
+        }
+
+        .panel-right {
+            top: 0; right: 0; bottom: 0; width: 6vmin;
+            background-color: #422614; /* Mid-shadow */
+            clip-path: polygon(100% 0, 100% 100%, 0 calc(100% - 6vmin), 0 6vmin);
+        }
+
+        .panel-bottom {
+            bottom: 0; left: 0; right: 0; height: 6vmin;
+            background-color: #26150a; /* Darkest (Bottom shadow) */
+            clip-path: polygon(6vmin 0, calc(100% - 6vmin) 0, 100% 100%, 0 100%);
+        }
+
+        .panel-left {
+            top: 0; left: 0; bottom: 0; width: 6vmin;
+            background-color: #4f2e19; /* Mid-light */
+            clip-path: polygon(0 0, 100% 6vmin, 100% calc(100% - 6vmin), 0 100%);
+        }
+
+        /* ---------------------------------------------------
+           INNER FRAME & CANVAS
+           --------------------------------------------------- */
+
+        .frame-content {
+            position: absolute;
+            top: 6vmin;
+            left: 6vmin;
+            right: 6vmin;
+            bottom: 6vmin;
+            display: flex;
+            z-index: 2;
+            /* Casts a shadow onto the gold trim from the wood edges */
+            box-shadow: 0 0 2vmin rgba(0, 0, 0, 0.9);
+        }
+
+        /* The Inner Gold Trim */
+        .gold-trim {
+            flex: 1;
+            display: flex;
+            border-style: solid;
+            border-width: 1.5vmin;
+            /* Metallic lighting effect */
+            border-top-color: #e8c678;
+            border-left-color: #cda852;
+            border-right-color: #8a6a12;
+            border-bottom-color: #543f00;
+
+            /* Inner shadow falling onto the canvas */
+            box-shadow: inset 1vmin 1vmin 3vmin rgba(0, 0, 0, 0.9),
+                        inset -0.5vmin -0.5vmin 2vmin rgba(0, 0, 0, 0.7);
+        }
+
+        /* The Canvas */
+        .canvas {
+            flex: 1;
+            /* A medium beige, just a few shades darker than the wall */
+            background: linear-gradient(135deg, #d9b38c 0%, #ad7f53 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Canvas texture overlay */
+        .canvas::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
+            background-size: 4px 4px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* SVG Math */
+        .math-svg {
+            width: 85%;
+            height: 85%;
+            /* A softer shadow to look like ink slightly raised/embossed on canvas */
+            filter: drop-shadow(1px 2px 2px rgba(255, 255, 255, 0.3));
+            z-index: 1;
+        }
+
+        .math-text {
+            fill: #2a1708; /* Dark ink color */
+            font-style: italic;
+        }
+
+        /* ---------------------------------------------------
+           NAMEPLATE
+           --------------------------------------------------- */
+
+        .nameplate {
+            position: absolute;
+            /* Positioned directly ON the bottom wooden frame */
+            bottom: 0.8vmin;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            padding: 1vmin 2vmin;
+            z-index: 10;
+
+            /* Brass gradient */
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 25%, #c59b27 50%, #997a00 75%, #b59226 100%);
+
+            /* Bevel for the plaque itself */
+            border-top: 0.3vmin solid #fff4cc;
+            border-left: 0.3vmin solid #e6c865;
+            border-right: 0.3vmin solid #634b07;
+            border-bottom: 0.3vmin solid #423204;
+            border-radius: 0.5vmin;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+
+            /* Shadow cast by the plaque onto the wooden frame */
+            box-shadow: 0 1vmin 2vmin rgba(0,0,0,0.8);
+        }
+
+        /* Plaque Text */
+        .nameplate-text {
+            color: #1a1a1a;
+            font-size: 2vmin;
+            font-family: 'Georgia', 'Times New Roman', Times, serif;
+            font-weight: bold;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            /* Engraved text effect */
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.4),
+                        -1px -1px 0px rgba(0,0,0,0.3);
+        }
+
+        /* Faux screws for the plaque */
+        .screw {
+            position: absolute;
+            width: 0.8vmin;
+            height: 0.8vmin;
+            background: #423204;
+            border-radius: 50%;
+            box-shadow: inset 1px 1px 1px rgba(0,0,0,0.5), 1px 1px 0px rgba(255,255,255,0.4);
+        }
+        .screw-left { left: 1.5vmin; top: 50%; transform: translateY(-50%); }
+        .screw-right { right: 1.5vmin; top: 50%; transform: translateY(-50%); }
+
+    </style>
+</head>
+<body>
+
+    <div class="frame-wrapper">
+
+        <!-- The 4 Mitred Wood Frame Pieces -->
+        <div class="wood-panel panel-top grain-h"></div>
+        <div class="wood-panel panel-right grain-v"></div>
+        <div class="wood-panel panel-bottom grain-h"></div>
+        <div class="wood-panel panel-left grain-v"></div>
+
+        <!-- The Inside contents (Gold Trim & Canvas) -->
+        <div class="frame-content">
+            <div class="gold-trim">
+                <div class="canvas">
+
+                    <!-- viewBox matches the 3:4 aspect ratio (100:133) for perfect filling -->
+                    <svg class="math-svg" viewBox="0 0 100 133" preserveAspectRatio="xMidYMid meet">
+                        <!-- Numerator: d³x -->
+                        <text x="50" y="52" text-anchor="middle" class="math-text" font-size="42">
+                            d<tspan dy="-16" font-size="24">3</tspan><tspan dy="16">x</tspan>
+                        </text>
+                        <!-- Fraction Line (Updated stroke color to match text) -->
+                        <line x1="10" y1="66.5" x2="90" y2="66.5" stroke="#2a1708" stroke-width="2.5" stroke-linecap="round" />
+                        <!-- Denominator: dt³ -->
+                        <text x="50" y="118" text-anchor="middle" class="math-text" font-size="42">
+                            dt<tspan dy="-16" font-size="24">3</tspan>
+                        </text>
+                    </svg>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- The Nameplate -->
+        <div class="nameplate">
+            <div class="screw screw-left"></div>
+            <span class="nameplate-text">Portrait of Phyl Hubble</span>
+            <div class="screw screw-right"></div>
+        </div>
+
+    </div>
+
+</body>
+</html>
