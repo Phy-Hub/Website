@@ -1,9 +1,7 @@
 #####
 #####
 
-*** check toc text size and change to better usnits so shows up better on different laptops and macbooks
-
-* state that logo and branding are not in the creative commons license on about, and other pages
+** check about and resources page for grammar
 
 * add suggestion button to content menu
 
